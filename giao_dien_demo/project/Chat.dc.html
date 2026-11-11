@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Trao đổi nhóm</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="chat" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1200px;margin:0 auto;padding:28px 32px 56px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+    <div>
+      <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.4px">Trao đổi</h1>
+      <div style="font-size:15px;color:var(--mute);line-height:1.5">Ba kênh tách riêng: bình luận gắn với task, chat cả nhóm và chat riêng. Tin nhắn của kênh này không lẫn sang kênh khác.</div>
+    </div>
+
+    <div role="tablist" aria-label="Kênh trao đổi" style="display:flex;flex-wrap:wrap;gap:4px;background:#E6EAF2;border-radius:12px;padding:4px;align-self:flex-start">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height:44px;padding:0 18px;border:0;border-radius:9px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px;{{t.style}}">
+          {{t.label}}
+          <sc-if value="{{t.hasBadge}}" hint-placeholder-val="{{ false }}"><span style="min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#A3231B;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{t.badge}}</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- BÌNH LUẬN TRONG TASK -->
+    <sc-if value="{{tabTask}}" hint-placeholder-val="{{ true }}">
+      <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;color:var(--mute)">Bình luận của task</div>
+            <a href="TaskDetail.dc.html" style="font-size:18px;font-weight:700;color:var(--ink)">TASK-104 · Thiết kế giao diện Dashboard</a>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button aria-pressed="{{taskOpen}}" onClick="{{setOpen}}" style="height:38px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{openStyle}}">Task đang mở</button>
+            <button aria-pressed="{{taskClosed}}" onClick="{{setClosed}}" style="height:38px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{closedStyle}}">Task đã hoàn thành (demo)</button>
+          </div>
+        </div>
+        <div style="background:#F7F8FB;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--ink2);line-height:1.6">Tối đa 500 ký tự mỗi bình luận và 5 bình luận mỗi phút. Hiển thị 20 bình luận mới nhất, bấm Xem thêm để tải cũ hơn. Để thảo luận dài, hãy chuyển sang Chat nhóm.</div>
+
+        <sc-if value="{{hasMore}}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{loadMore}}" style="align-self:center;height:40px;padding:0 16px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:14px;font-weight:600">Xem thêm bình luận cũ (8)</button>
+        </sc-if>
+        <sc-if value="{{loadedMore}}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;color:var(--mute);text-align:center">Đã tải hết bình luận cũ.</div>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:14px" aria-live="polite">
+          <sc-for list="{{tcomments}}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;gap:12px">
+              <div style="flex:none;width:36px;height:36px;border-radius:50%;background:{{c.avBg}};color:{{c.avFg}};font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.init}}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px"><b>{{c.name}}</b> <span style="color:var(--mute);font-size:13px">· {{c.when}}</span></div>
+                <div style="font-size:15px;line-height:1.6;margin-top:2px">{{c.text}}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{taskOpen}}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:16px">
+            <label for="tc" style="font-size:14px;font-weight:600">Viết bình luận</label>
+            <textarea id="tc" rows="3" onInput="{{iTc}}" style="border:1px solid {{tcBorder}};border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{tcDraft}}</textarea>
+            <div style="display:flex;justify-content:space-between;gap:12px"><span role="alert" style="font-size:13px;color:var(--bad)">{{tcErr}}</span><span style="font-size:13px;color:var(--mute)">{{tcLen}}/500</span></div>
+            <button onClick="{{sendTc}}" style="align-self:flex-start;height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Gửi bình luận</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{taskClosed}}" hint-placeholder-val="{{ false }}">
+          <div role="status" style="display:flex;gap:12px;align-items:flex-start;background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:14px;font-size:14px;line-height:1.5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+            <span>Task đã hoàn thành hoặc đã xóa mềm: chỉ đọc được bình luận cũ, không nhận bình luận mới để chốt hồ sơ.</span>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- CHAT NHÓM -->
+    <sc-if value="{{tabGroup}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+        <section style="flex:1 1 620px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;height:620px">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px">
+            <div><div style="font-size:17px;font-weight:700"># Đồ án Phát triển ứng dụng web</div><div style="font-size:13px;color:var(--mute)">6 thành viên · 4 đang trực tuyến</div></div>
+            <div style="font-size:12px;color:var(--mute);text-align:right">Kênh tách khỏi bình luận task</div>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px" aria-live="polite">
+            <sc-for list="{{gmsgs}}" as="m" hint-placeholder-count="6">
+              <div style="display:flex;gap:10px;{{m.rowStyle}}">
+                <sc-if value="{{m.showAvatar}}" hint-placeholder-val="{{ true }}"><div style="flex:none;width:32px;height:32px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{m.init}}</div></sc-if>
+                <div style="max-width:70%">
+                  <div style="font-size:12px;color:var(--mute);margin-bottom:3px;{{m.metaAlign}}">{{m.name}} · {{m.when}}</div>
+                  <div style="padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;{{m.bubble}}">{{m.text}}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid var(--line);padding:14px 20px;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;gap:10px">
+              <label for="gm" style="position:absolute;left:-9999px">Tin nhắn nhóm</label>
+              <input id="gm" type="text" placeholder="Nhắn cho cả nhóm" value="{{gDraft}}" onInput="{{iG}}" style="flex:1;min-width:0;height:44px;border:1px solid var(--line-strong);border-radius:10px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+              <button onClick="{{sendG}}" style="flex:none;height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Gửi</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span role="alert" style="color:var(--bad)">{{gErr}}</span><span style="color:var(--mute)">{{gLen}}/2000</span></div>
+          </div>
+        </section>
+        <aside style="flex:1 1 260px;max-width:340px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;align-self:flex-start;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:16px;font-weight:700">Thành viên</div>
+          <sc-for list="{{online}}" as="o" hint-placeholder-count="6">
+            <div style="display:flex;align-items:center;gap:10px;min-height:40px">
+              <div style="flex:none;width:32px;height:32px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{o.init}}</div>
+              <div style="flex:1;font-size:14px;font-weight:600">{{o.name}}</div>
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{o.color}};font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{o.dot}}"></span>{{o.label}}</span>
+            </div>
+          </sc-for>
+        </aside>
+      </div>
+    </sc-if>
+
+    <!-- CHAT RIÊNG -->
+    <sc-if value="{{tabPrivate}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
+        <aside style="flex:1 1 280px;max-width:360px;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;align-self:flex-start">
+          <div style="padding:16px 18px;font-size:16px;font-weight:700;border-bottom:1px solid var(--line)">Hội thoại</div>
+          <sc-for list="{{convs}}" as="c" hint-placeholder-count="3">
+            <button onClick="{{c.pick}}" aria-pressed="{{c.on}}" style="display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 18px;border:0;border-bottom:1px solid var(--line);background:{{c.bg}};color:var(--ink);min-height:64px">
+              <span style="flex:none;width:36px;height:36px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.init}}</span>
+              <span style="flex:1;min-width:0"><span style="display:block;font-size:14px;font-weight:600">{{c.name}}</span><span style="display:block;font-size:13px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{c.last}}</span></span>
+              <sc-if value="{{c.hasUnread}}" hint-placeholder-val="{{ false }}"><span style="flex:none;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:#A3231B;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.unread}}</span></sc-if>
+            </button>
+          </sc-for>
+        </aside>
+        <section style="flex:2 1 520px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;height:560px">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--line)"><div style="font-size:17px;font-weight:700">{{pName}}</div><div style="font-size:13px;color:var(--mute)">Chỉ hai người thấy cuộc trò chuyện này</div></div>
+          <div style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px" aria-live="polite">
+            <sc-for list="{{pmsgs}}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;{{m.rowStyle}}">
+                <div style="max-width:70%">
+                  <div style="padding:10px 14px;border-radius:14px;font-size:15px;line-height:1.5;{{m.bubble}}">{{m.text}}</div>
+                  <div style="font-size:12px;color:var(--mute);margin-top:3px;{{m.metaAlign}}">{{m.when}} · {{m.state}}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid var(--line);padding:14px 20px;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;gap:10px">
+              <label for="pm" style="position:absolute;left:-9999px">Tin nhắn riêng</label>
+              <input id="pm" type="text" placeholder="Nhắn riêng cho {{pName}}" value="{{pDraft}}" onInput="{{iP}}" style="flex:1;min-width:0;height:44px;border:1px solid var(--line-strong);border-radius:10px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+              <button onClick="{{sendP}}" style="flex:none;height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Gửi</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px"><span role="alert" style="color:var(--bad)">{{pErr}}</span><span style="color:var(--mute)">{{pLen}}/2000</span></div>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'task', taskState: 'open', loadedMore: false,
+      tcDraft: '', tcErr: '', gDraft: '', gErr: '', pDraft: '', pErr: '', conv: 'th',
+      sentTimes: [],
+      tOld: [
+        { name: 'Nguyễn Minh Anh', init: 'MA', when: '22/10 09:00', text: 'Task này chia 4 giai đoạn. Mọi người xem tab Công đoạn nhé.' },
+        { name: 'Phạm Gia Huy', init: 'GH', when: '22/10 09:40', text: 'Mình cần dữ liệu mockup để seed. Giai đoạn 3 ai làm vậy?' }
+      ],
+      tNew: [
+        { name: 'Nguyễn Minh Anh', init: 'MA', when: '25/10 10:10', text: 'GĐ1 cần xong trước 28/10 để Huy kịp bàn giao dữ liệu mẫu.' },
+        { name: 'Võ Khánh Linh', init: 'KL', when: '25/10 11:32', text: 'Em nhận GĐ1. Em cần thêm danh sách chỉ số để vẽ bảng số liệu.' },
+        { name: 'Lê Thu Hà', init: 'TH', when: '25/10 14:05', text: 'Mình gửi danh sách chỉ số vào chat nhóm rồi nhé.' }
+      ],
+      gmsgs: [
+        { name: 'Lê Thu Hà', init: 'TH', when: '25/10 14:05', text: 'Danh sách chỉ số cho bảng thống kê: số task, % hoàn thành, đúng hạn, trễ hạn, phân bố ưu tiên.', mine: false },
+        { name: 'Võ Khánh Linh', init: 'KL', when: '25/10 14:20', text: 'Cảm ơn Hà, mình vẽ wireframe theo danh sách này.', mine: false },
+        { name: 'Nguyễn Minh Anh', init: 'MA', when: '26/10 08:15', text: 'Nhắc cả nhóm: CI của repo đang quá hạn 2 ngày, Huy xử lý giúp mình nhé.', mine: true },
+        { name: 'Phạm Gia Huy', init: 'GH', when: '26/10 08:40', text: 'Mình xin thêm 1 ngày, tuần này đang kẹt thi giữa kỳ.', mine: false }
+      ],
+      pm: {
+        th: [
+          { text: 'Chị ơi, mình khai báo giờ rảnh tuần này rồi.', mine: false, when: '25/10 18:10', state: 'Đã đọc' },
+          { text: 'Cảm ơn Hà, mình sẽ xem trước khi giao việc.', mine: true, when: '25/10 18:22', state: 'Đã đọc' }
+        ],
+        gh: [{ text: 'Em xin dời hạn CI thêm một ngày được không?', mine: false, when: '26/10 08:45', state: 'Chưa đọc' }],
+        qb: []
+      }
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const segOn = 'background:#FFFFFF;color:#141B2D';
+    const segOff = 'background:transparent;color:#3F4A5E';
+    const on = 'background:#141B2D;color:#fff;border:1px solid #141B2D';
+    const off = 'background:#fff;color:#3F4A5E;border:1px solid #8A94A8';
+    const mineB = 'background:#2748D8;color:#FFFFFF;border-bottom-right-radius:4px';
+    const otherB = 'background:#EEF1F7;color:#141B2D;border-bottom-left-radius:4px';
+    const unreadP = (s.pm.gh.filter((m) => !m.mine && m.state === 'Chưa đọc').length);
+    const tabDef = [['task', 'Bình luận trong task', 0], ['group', 'Chat nhóm', 0], ['private', 'Chat riêng', unreadP]];
+    const tabs = tabDef.map(([id, label, n]) => ({
+      label, hasBadge: n > 0, badge: n, style: s.tab === id ? segOn : segOff, on: s.tab === id, pick: () => this.setState({ tab: id })
+    }));
+
+    const tlist = (s.loadedMore ? s.tOld : []).concat(s.tNew).map((c) => ({ ...c, avBg: '#E8EDFD', avFg: '#1B2F94' }));
+    const gm = s.gmsgs.map((m) => ({
+      ...m, showAvatar: !m.mine,
+      rowStyle: m.mine ? 'justify-content:flex-end' : 'justify-content:flex-start',
+      metaAlign: m.mine ? 'text-align:right' : 'text-align:left',
+      bubble: m.mine ? mineB : otherB, name: m.mine ? 'Bạn' : m.name
+    }));
+    const names = { th: 'Lê Thu Hà', gh: 'Phạm Gia Huy', qb: 'Trần Quốc Bảo' };
+    const inits = { th: 'TH', gh: 'GH', qb: 'QB' };
+    const convs = ['th', 'gh', 'qb'].map((id) => {
+      const arr = s.pm[id];
+      const last = arr.length ? arr[arr.length - 1].text : 'Chưa có tin nhắn';
+      const un = arr.filter((m) => !m.mine && m.state === 'Chưa đọc').length;
+      return {
+        name: names[id], init: inits[id], last, unread: un, hasUnread: un > 0, on: s.conv === id, bg: s.conv === id ? '#F5F7FF' : '#FFFFFF',
+        pick: () => this.setState({ conv: id, pm: { ...s.pm, [id]: s.pm[id].map((m) => (m.mine ? m : { ...m, state: 'Đã đọc' })) }, pErr: '' })
+      };
+    });
+    const pm = s.pm[s.conv].map((m) => ({
+      ...m, rowStyle: m.mine ? 'justify-content:flex-end' : 'justify-content:flex-start',
+      metaAlign: m.mine ? 'text-align:right' : 'text-align:left', bubble: m.mine ? mineB : otherB
+    }));
+
+    const rate = (key) => {
+      const now = Date.now();
+      const recent = s.sentTimes.filter((t) => now - t < 60000);
+      return { ok: recent.length < 5, next: recent.concat([now]) };
+    };
+    const closed = s.taskState === 'closed';
+
+    return {
+      tabs, tabTask: s.tab === 'task', tabGroup: s.tab === 'group', tabPrivate: s.tab === 'private',
+      taskOpen: !closed, taskClosed: closed,
+      openStyle: !closed ? on : off, closedStyle: closed ? on : off,
+      setOpen: () => this.setState({ taskState: 'open' }), setClosed: () => this.setState({ taskState: 'closed' }),
+      hasMore: !s.loadedMore, loadedMore: s.loadedMore, loadMore: () => this.setState({ loadedMore: true }),
+      tcomments: tlist, tcDraft: s.tcDraft, tcLen: s.tcDraft.length, tcErr: s.tcErr, tcBorder: s.tcErr ? 'var(--bad)' : 'var(--line-strong)',
+      iTc: (e) => this.setState({ tcDraft: e.target.value, tcErr: '' }),
+      sendTc: () => {
+        const t = s.tcDraft.trim();
+        if (!t) { this.setState({ tcErr: 'Nhập nội dung bình luận.' }); return; }
+        if (t.length > 500) { this.setState({ tcErr: 'Bình luận tối đa 500 ký tự.' }); return; }
+        const r = rate();
+        if (!r.ok) { this.setState({ tcErr: 'Bạn gửi quá nhanh: tối đa 5 bình luận mỗi phút. Thử lại sau ít giây.' }); return; }
+        this.setState({ tNew: s.tNew.concat([{ name: 'Nguyễn Minh Anh', init: 'MA', when: '26/10 16:3' + (s.tNew.length % 10), text: t }]), tcDraft: '', tcErr: '', sentTimes: r.next });
+      },
+
+      gmsgs: gm, gDraft: s.gDraft, gLen: s.gDraft.length, gErr: s.gErr,
+      iG: (e) => this.setState({ gDraft: e.target.value, gErr: '' }),
+      sendG: () => {
+        const t = s.gDraft.trim();
+        if (!t) { this.setState({ gErr: 'Tin nhắn không được để trống.' }); return; }
+        if (t.length > 2000) { this.setState({ gErr: 'Tin nhắn tối đa 2000 ký tự.' }); return; }
+        this.setState({ gmsgs: s.gmsgs.concat([{ name: 'Nguyễn Minh Anh', init: 'MA', when: '26/10 16:3' + (s.gmsgs.length % 10), text: t, mine: true }]), gDraft: '', gErr: '' });
+      },
+      online: [
+        { name: 'Nguyễn Minh Anh (bạn)', init: 'MA', label: 'Trực tuyến', dot: '#1F7A4D', color: '#13693A' },
+        { name: 'Lê Thu Hà', init: 'TH', label: 'Trực tuyến', dot: '#1F7A4D', color: '#13693A' },
+        { name: 'Võ Khánh Linh', init: 'KL', label: 'Trực tuyến', dot: '#1F7A4D', color: '#13693A' },
+        { name: 'Phạm Gia Huy', init: 'GH', label: 'Trực tuyến', dot: '#1F7A4D', color: '#13693A' },
+        { name: 'Trần Quốc Bảo', init: 'QB', label: 'Ngoại tuyến', dot: '#8A94A8', color: '#5B6678' },
+        { name: 'Bùi Thanh Tùng', init: 'BT', label: 'Ngoại tuyến', dot: '#8A94A8', color: '#5B6678' }
+      ],
+
+      convs, pName: names[s.conv], pmsgs: pm, pDraft: s.pDraft, pLen: s.pDraft.length, pErr: s.pErr,
+      iP: (e) => this.setState({ pDraft: e.target.value, pErr: '' }),
+      sendP: () => {
+        const t = s.pDraft.trim();
+        if (!t) { this.setState({ pErr: 'Tin nhắn không được để trống.' }); return; }
+        if (t.length > 2000) { this.setState({ pErr: 'Tin nhắn tối đa 2000 ký tự.' }); return; }
+        this.setState({ pm: { ...s.pm, [s.conv]: s.pm[s.conv].concat([{ text: t, mine: true, when: '26/10 16:3' + (s.pm[s.conv].length % 10), state: 'Đã gửi' }]) }, pDraft: '', pErr: '' });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

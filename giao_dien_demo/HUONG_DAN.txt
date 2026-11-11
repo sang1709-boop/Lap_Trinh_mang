@@ -1,0 +1,9 @@
+KTD Task Hub - giao dien demo
+
+Cach mo (can chay may chu cuc bo, mo thang file bang double-click se KHONG hien thi):
+1. Giai nen thu muc nay.
+2. Mo Terminal/Command Prompt tai thu muc, chay:   python -m http.server 8000
+   (hoac:  npx serve .)
+3. Mo trinh duyet: http://localhost:8000
+
+Luu y: support.js la runtime cua cac file .dc.html, phai de cung thu muc. Can Internet de tai font Be Vietnam Pro (khong co thi dung font he thong).

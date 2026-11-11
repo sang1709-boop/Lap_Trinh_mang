@@ -1,0 +1,31 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-26T09:25:00Z" },
+  "title": "KTD Task Hub – Giao diện demo",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1360, "h": 860, "title": "1 · Đăng nhập / Đăng ký / Quên mật khẩu", "expand": "fill", "is_interactive": true },
+    "Dashboard.dc.html": { "x": 0, "y": 960, "w": 1360, "h": 2300, "title": "3 · Dashboard (tiến độ, thống kê, báo cáo)", "expand": "fill", "is_interactive": true },
+    "Profile.dc.html": { "x": 0, "y": 3360, "w": 1360, "h": 1500, "title": "9 · Hồ sơ, bảo mật, lịch rảnh", "expand": "fill", "is_interactive": true },
+    "Groups.dc.html": { "x": 1440, "y": 0, "w": 1360, "h": 1000, "title": "2 · Danh sách nhóm, mã mời, lời mời", "expand": "fill", "is_interactive": true },
+    "Tasks.dc.html": { "x": 1440, "y": 1100, "w": 1360, "h": 1500, "title": "4 · Công việc (tìm kiếm, bảng, kanban)", "expand": "fill", "is_interactive": true },
+    "Chat.dc.html": { "x": 1440, "y": 2700, "w": 1360, "h": 1300, "title": "7 · Trao đổi (bình luận, chat nhóm, chat riêng)", "expand": "fill", "is_interactive": true },
+    "Header.dc.html": { "x": 2880, "y": 0, "w": 1360, "h": 520, "title": "Thanh đầu trang dùng chung (cảnh báo 3 màu + chuông)", "is_interactive": true },
+    "TaskDetail.dc.html": { "x": 2880, "y": 620, "w": 1360, "h": 2400, "title": "5 · Chi tiết task + Phân công + Load Balancer", "expand": "fill", "is_interactive": true },
+    "Group.dc.html": { "x": 2880, "y": 3120, "w": 1360, "h": 1700, "title": "6 · Quản lý nhóm", "expand": "fill", "is_interactive": true }
+  },
+  "order": [
+    "Main.dc.html",
+    "Groups.dc.html",
+    "Header.dc.html",
+    "Dashboard.dc.html",
+    "Tasks.dc.html",
+    "TaskDetail.dc.html",
+    "Chat.dc.html",
+    "Group.dc.html",
+    "Profile.dc.html"
+  ],
+  "notes": {},
+  "designSystems": []
+}

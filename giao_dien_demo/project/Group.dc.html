@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Quản lý nhóm</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="group" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1200px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:24px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+      <div>
+        <div style="font-size:14px;color:var(--mute);margin-bottom:6px"><a href="Groups.dc.html" style="color:#2748D8;font-weight:600">Nhóm của tôi</a> / Quản lý nhóm</div>
+        <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.4px">Đồ án Phát triển ứng dụng web</h1>
+        <div style="font-size:15px;color:var(--mute);line-height:1.5">Lớp KTD01 · {{memberCount}} thành viên · Bạn đang xem với vai trò <b style="color:var(--ink);font-weight:600">{{roleLabel}}</b></div>
+      </div>
+      <button onClick="{{openLeave}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Rời nhóm</button>
+    </div>
+
+    <div role="tablist" aria-label="Mục quản lý nhóm" style="display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line)">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="height:46px;padding:0 16px;border:0;border-bottom:3px solid transparent;background:none;font-size:15px;{{t.style}}">
+          {{t.label}}
+          <sc-if value="{{t.hasBadge}}" hint-placeholder-val="{{ false }}"><span style="margin-left:6px;padding:2px 8px;border-radius:999px;background:#FFF1CC;color:#7A4B00;font-size:12px;font-weight:700">{{t.badge}}</span></sc-if>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- TAB THÀNH VIÊN -->
+    <sc-if value="{{isMembers}}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+        <section aria-label="Danh sách thành viên" style="flex:999 1 620px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+          <div style="display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)">
+            <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:4px">
+              <label for="m-q" style="font-size:13px;font-weight:600;color:var(--ink2)">Tìm thành viên</label>
+              <input id="m-q" type="text" value="{{q}}" onInput="{{iQ}}" placeholder="Tên hoặc MSSV" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <label for="m-r" style="font-size:13px;font-weight:600;color:var(--ink2)">Vai trò</label>
+              <select id="m-r" onChange="{{iRole}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+                <option value="all">Tất cả</option><option value="lead">Trưởng nhóm</option><option value="mem">Thành viên</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;min-width:640px">
+              <thead>
+                <tr style="text-align:left;font-size:13px;color:var(--mute)">
+                  <th scope="col" style="padding:12px 20px;font-weight:600">Thành viên</th>
+                  <th scope="col" style="padding:12px 8px;font-weight:600">MSSV</th>
+                  <th scope="col" style="padding:12px 8px;font-weight:600">Vai trò</th>
+                  <th scope="col" style="padding:12px 8px;font-weight:600">Task đang giữ</th>
+                  <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}"><th scope="col" style="padding:12px 20px;font-weight:600;text-align:right">Quản trị</th></sc-if>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{rows}}" as="m" hint-placeholder-count="5">
+                  <tr style="border-top:1px solid var(--line)">
+                    <td style="padding:12px 20px">
+                      <div style="display:flex;align-items:center;gap:12px">
+                        <span style="position:relative;flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;{{m.avStyle}}">{{m.ini}}<span aria-hidden="true" style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;border:2px solid #fff;box-sizing:border-box;{{m.dotStyle}}"></span></span>
+                        <span style="min-width:0">
+                          <span style="display:block;font-size:15px;font-weight:600">{{m.name}}</span>
+                          <span style="display:block;font-size:13px;color:var(--mute)">{{m.online}}</span>
+                        </span>
+                      </div>
+                    </td>
+                    <td style="padding:12px 8px;font-size:14px;color:var(--ink2)">{{m.mssv}}</td>
+                    <td style="padding:12px 8px"><span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;{{m.roleStyle}}">{{m.role}}</span></td>
+                    <td style="padding:12px 8px;font-size:14px;color:var(--ink2)">{{m.tasks}} task</td>
+                    <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}">
+                      <td style="padding:12px 20px;text-align:right;white-space:nowrap">
+                        <sc-if value="{{m.canManage}}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{m.transfer}}" style="height:40px;padding:0 12px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:14px;font-weight:600">Chuyển quyền</button>
+                          <button onClick="{{m.remove}}" style="height:40px;padding:0 12px;border:1px solid var(--bad);border-radius:8px;background:#fff;color:var(--bad);font-size:14px;font-weight:600;margin-left:6px">Xóa</button>
+                        </sc-if>
+                        <sc-if value="{{m.isSelf}}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:var(--mute)">Bạn</span></sc-if>
+                      </td>
+                    </sc-if>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <sc-if value="{{noRows}}" hint-placeholder-val="{{ false }}"><div style="padding:28px;text-align:center;font-size:14px;color:var(--mute)">Không có thành viên phù hợp với bộ lọc.</div></sc-if>
+        </section>
+
+        <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}">
+          <aside aria-label="Mời thành viên" style="flex:1 1 300px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px">
+            <h2 style="margin:0;font-size:18px;font-weight:700">Mời thành viên</h2>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <label for="inv" style="font-size:14px;font-weight:600">Email hoặc MSSV</label>
+              <input id="inv" type="text" value="{{inv}}" onInput="{{iInv}}" placeholder="vd. 20KTD099 hoặc ten@truong.edu.vn" style="height:44px;border:1px solid {{invBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+              <div role="alert" style="font-size:13px;color:var(--bad)">{{invErr}}</div>
+            </div>
+            <button onClick="{{sendInv}}" style="height:44px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Gửi lời mời</button>
+            <div style="font-size:14px;font-weight:600;margin-top:4px">Lời mời đang chờ ({{invCount}})</div>
+            <sc-for list="{{invites}}" as="iv" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#FAFBFD">
+                <div style="min-width:0"><div style="font-size:14px;font-weight:600;overflow-wrap:anywhere">{{iv.who}}</div><div style="font-size:12px;color:var(--mute)">{{iv.note}}</div></div>
+                <button onClick="{{iv.cancel}}" style="flex:none;height:36px;padding:0 10px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:13px;font-weight:600">Thu hồi</button>
+              </div>
+            </sc-for>
+          </aside>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- TAB YÊU CẦU -->
+    <sc-if value="{{isRequests}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Yêu cầu tham gia" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        <div>
+          <h2 style="margin:0 0 4px;font-size:18px;font-weight:700">Yêu cầu chờ duyệt</h2>
+          <div style="font-size:14px;color:var(--mute);line-height:1.5">Chỉ hiện khi nhóm bật duyệt thành viên. Mọi quyết định đều gửi thông báo cho người nộp và ghi vào lịch sử.</div>
+        </div>
+        <sc-for list="{{requests}}" as="r" hint-placeholder-count="2">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#FAFBFD">
+            <span style="flex:none;width:42px;height:42px;border-radius:50%;background:#EEF1F7;color:#3F4A5E;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">{{r.ini}}</span>
+            <div style="flex:1 1 240px;min-width:0">
+              <div style="font-size:16px;font-weight:600">{{r.name}} <span style="font-size:14px;color:var(--mute);font-weight:400">· {{r.mssv}}</span></div>
+              <div style="font-size:14px;color:var(--ink2);margin-top:2px">{{r.via}} · {{r.when}}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{r.reject}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Từ chối</button>
+              <button onClick="{{r.approve}}" style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Đồng ý</button>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{noRequests}}" hint-placeholder-val="{{ false }}">
+          <div style="padding:28px;text-align:center;font-size:14px;color:var(--mute);border:1px dashed var(--line-strong);border-radius:12px">Không còn yêu cầu nào đang chờ. Yêu cầu mới sẽ hiện ở đây và trên chuông thông báo.</div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <!-- TAB CÀI ĐẶT -->
+    <sc-if value="{{isSettings}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+        <section aria-label="Thông tin nhóm" style="flex:1 1 440px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:18px">
+          <h2 style="margin:0;font-size:18px;font-weight:700">Thông tin nhóm</h2>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="s-name" style="font-size:14px;font-weight:600">Tên nhóm</label>
+            <input id="s-name" type="text" value="{{gName}}" onInput="{{iGName}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="s-desc" style="font-size:14px;font-weight:600">Mô tả</label>
+            <textarea id="s-desc" rows="3" onInput="{{iGDesc}}" style="border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%;resize:vertical">{{gDesc}}</textarea>
+          </div>
+          <div style="display:flex;justify-content:flex-end"><button onClick="{{saveInfo}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Lưu thông tin</button></div>
+        </section>
+
+        <div style="flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:24px">
+          <section aria-label="Duyệt thành viên và mã mời" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
+            <h2 style="margin:0;font-size:18px;font-weight:700">Tham gia nhóm</h2>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#FAFBFD">
+              <div>
+                <div style="font-size:15px;font-weight:600">Bật duyệt thành viên tham gia</div>
+                <div style="font-size:13px;color:var(--mute);line-height:1.5;margin-top:2px">{{approvalHelp}}</div>
+              </div>
+              <button role="switch" aria-checked="{{approval}}" aria-label="Bật duyệt thành viên tham gia" onClick="{{toggleApproval}}" style="flex:none;width:52px;height:30px;border:0;border-radius:15px;padding:3px;display:flex;{{switchStyle}}"><span style="width:24px;height:24px;border-radius:50%;background:#fff;display:block"></span></button>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px">
+              <div style="flex:1 1 160px"><div style="font-size:13px;color:var(--mute)">Mã mời hiện tại</div><div style="font-size:22px;font-weight:700;letter-spacing:2px">{{code}}</div></div>
+              <button onClick="{{newCode}}" style="height:44px;padding:0 16px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Tạo lại mã mời</button>
+            </div>
+          </section>
+
+          <section aria-label="Vùng nguy hiểm" style="background:#FFF8F7;border:1px solid #F2B8B2;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:12px">
+            <h2 style="margin:0;font-size:18px;font-weight:700;color:var(--bad)">Giải tán nhóm</h2>
+            <div style="font-size:14px;color:var(--ink2);line-height:1.6">Nhóm chuyển sang trạng thái lưu trữ. Task, chat và nhật ký vẫn được giữ để xem lại, nhưng không ai thêm được nội dung mới.</div>
+            <div><button onClick="{{openDisband}}" style="height:44px;padding:0 18px;border:1px solid var(--bad);border-radius:10px;background:#fff;color:var(--bad);font-size:15px;font-weight:600">Giải tán nhóm…</button></div>
+          </section>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- TAB LỊCH SỬ -->
+    <sc-if value="{{isHistory}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Lịch sử hoạt động của nhóm" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-end">
+          <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:4px">
+            <label for="h-q" style="font-size:13px;font-weight:600;color:var(--ink2)">Tìm theo người, hành động, đối tượng</label>
+            <input id="h-q" type="text" value="{{hq}}" onInput="{{iHq}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label for="h-r" style="font-size:13px;font-weight:600;color:var(--ink2)">Kết quả</label>
+            <select id="h-r" onChange="{{iHr}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+              <option value="all">Tất cả</option><option value="SUCCESS">SUCCESS</option><option value="FAILED">FAILED</option>
+            </select>
+          </div>
+          <div style="font-size:13px;color:var(--mute);padding-bottom:12px">Bản ghi chỉ đọc, không sửa hoặc xóa được.</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;min-width:780px">
+            <thead><tr style="text-align:left;font-size:13px;color:var(--mute)">
+              <th scope="col" style="padding:12px 20px;font-weight:600">Thời gian</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Người thực hiện</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Hành động</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Đối tượng</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Kết quả</th>
+              <th scope="col" style="padding:12px 20px;font-weight:600">Địa chỉ IP</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{logRows}}" as="l" hint-placeholder-count="6">
+                <tr style="border-top:1px solid var(--line);vertical-align:top">
+                  <td style="padding:12px 20px;font-size:14px;color:var(--ink2);white-space:nowrap">{{l.when}}</td>
+                  <td style="padding:12px 8px;font-size:14px;font-weight:600">{{l.who}}</td>
+                  <td style="padding:12px 8px;font-size:14px;color:var(--ink2);line-height:1.5">{{l.action}}<span style="display:block;font-size:12px;color:var(--mute)">{{l.change}}</span></td>
+                  <td style="padding:12px 8px;font-size:14px;color:var(--ink2)">{{l.target}}</td>
+                  <td style="padding:12px 8px"><span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;{{l.resStyle}}">{{l.res}}</span></td>
+                  <td style="padding:12px 20px;font-size:13px;color:var(--mute)">{{l.ip}}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <sc-if value="{{noLogs}}" hint-placeholder-val="{{ false }}"><div style="padding:28px;text-align:center;font-size:14px;color:var(--mute)">Không có bản ghi phù hợp.</div></sc-if>
+      </section>
+    </sc-if>
+  </main>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;background:#141B2D;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.5;box-shadow:0 12px 32px rgba(20,27,45,0.3)">
+      <span>{{toast}}</span>
+      <button onClick="{{closeToast}}" style="flex:none;height:32px;padding:0 12px;border:1px solid #5A6684;border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600">Đóng</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{hasModal}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;background:rgba(20,27,45,0.5);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+      <div role="dialog" aria-modal="true" aria-labelledby="md-h" style="width:100%;max-width:500px;max-height:100%;overflow-y:auto;background:#fff;border-radius:16px;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+        <h2 id="md-h" style="margin:0;font-size:22px;font-weight:700">{{mTitle}}</h2>
+        <div style="font-size:15px;color:var(--ink2);line-height:1.6">{{mBody}}</div>
+        <sc-if value="{{mWarn}}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFF1CC;color:#7A4B00;border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.6">{{mWarnText}}</div>
+        </sc-if>
+        <sc-if value="{{mReason}}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="md-reason" style="font-size:14px;font-weight:600">Lý do (gửi kèm thông báo)</label>
+            <textarea id="md-reason" rows="3" onInput="{{iReason}}" style="border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%;resize:vertical">{{reason}}</textarea>
+          </div>
+        </sc-if>
+        <sc-if value="{{mHandover}}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="md-h2" style="font-size:14px;font-weight:600">Người nhận bàn giao task</label>
+            <select id="md-h2" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+              <option>Lê Thu Hà · tải 56%</option><option>Võ Khánh Linh · tải 48%</option><option>Đặng Tuấn Kiệt · tải 71%</option>
+            </select>
+          </div>
+        </sc-if>
+        <div style="display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap">
+          <button onClick="{{closeModal}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Hủy</button>
+          <button onClick="{{confirm}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;font-size:15px;font-weight:600;{{mBtnStyle}}">{{mBtn}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"viewAsMember":{"editor":"boolean","default":false},"$preview":{"width":1360,"height":1700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'members', q: '', roleF: 'all', inv: '', invErr: '', hq: '', hr: 'all',
+      gName: 'Đồ án Phát triển ứng dụng web', gDesc: 'Xây dựng hệ thống quản lý công việc nhóm cho sinh viên KTD, nộp báo cáo giữa kỳ vào tuần 9.',
+      approval: true, code: 'KTD-7QX2', modal: null, reason: 'Nhóm đã đủ người cho học kỳ này.', toast: '',
+      members: [
+        { id: 1, name: 'Nguyễn Minh Anh', mssv: '20KTD001', lead: true, online: true, tasks: 2 },
+        { id: 2, name: 'Trần Quốc Bảo', mssv: '20KTD014', lead: false, online: true, tasks: 3 },
+        { id: 3, name: 'Lê Thu Hà', mssv: '20KTD027', lead: false, online: false, tasks: 2 },
+        { id: 4, name: 'Phạm Gia Huy', mssv: '20KTD033', lead: false, online: true, tasks: 4 },
+        { id: 5, name: 'Võ Khánh Linh', mssv: '20KTD041', lead: false, online: false, tasks: 1 },
+        { id: 6, name: 'Đặng Tuấn Kiệt', mssv: '20KTD048', lead: false, online: false, tasks: 3 }
+      ],
+      requests: [
+        { id: 11, name: 'Đỗ Hoàng Nam', mssv: '20KTD052', via: 'Vào bằng mã mời KTD-7QX2', when: '14:12 hôm nay' },
+        { id: 12, name: 'Ngô Bảo Châu', mssv: '20KTD057', via: 'Tham gia bằng mã mời', when: 'Hôm qua 21:40' }
+      ],
+      invites: [
+        { id: 1, who: 'khoa.dang@truong.edu.vn', note: 'Gửi 25/10 · hết hạn 01/11' },
+        { id: 2, who: '20KTD060', note: 'Gửi 26/10 · hết hạn 02/11' }
+      ],
+      logs: [
+        { when: '27/10 14:12', who: 'Đỗ Hoàng Nam', action: 'Gửi yêu cầu tham gia bằng mã mời', change: 'membership: none → Pending', target: 'Nhóm KTD01', res: 'SUCCESS', ip: '10.12.7.88' },
+        { when: '27/10 09:02', who: 'Phạm Gia Huy', action: 'Chuyển nhóm sang quyền Thành viên khác', change: 'Bị từ chối: chỉ Trưởng nhóm được đổi quyền', target: 'Membership #4', res: 'FAILED', ip: '10.12.4.52' },
+        { when: '26/10 21:40', who: 'Ngô Bảo Châu', action: 'Yêu cầu tham gia bằng mã mời', change: 'join_request: Pending', target: 'Yêu cầu #12', res: 'SUCCESS', ip: '10.12.9.14' },
+        { when: '25/10 10:15', who: 'Nguyễn Minh Anh', action: 'Gửi lời mời thành viên', change: 'invite: none → Pending', target: 'khoa.dang@truong.edu.vn', res: 'SUCCESS', ip: '10.12.4.21' },
+        { when: '24/10 16:30', who: 'Nguyễn Minh Anh', action: 'Bật duyệt thành viên tham gia', change: 'approvalEnabled: false → true', target: 'Cài đặt nhóm', res: 'SUCCESS', ip: '10.12.4.21' }
+      ]
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const isLeader = !this.props.viewAsMember;
+    const h = (k) => (e) => this.setState({ [k]: e.target.value });
+    const now = '27/10 09:30';
+    const palette = ['#2748D8', '#13693A', '#7A4B00', '#A3231B', '#5B2BB5', '#0B6B7A'];
+    const initials = (n) => { const p = n.trim().split(/\s+/); return (p[0][0] + p[p.length - 1][0]).toUpperCase(); };
+    const pushLog = (action, change, target, res) => [{ when: now, who: 'Nguyễn Minh Anh', action, change, target, res: res || 'SUCCESS', ip: '10.12.4.21' }, ...s.logs];
+
+    const tabDef = [['members', 'Thành viên', 0]];
+    if (isLeader) { tabDef.push(['requests', 'Yêu cầu tham gia', s.approval ? s.requests.length : 0]); tabDef.push(['settings', 'Cài đặt nhóm', 0]); }
+    tabDef.push(['history', 'Lịch sử nhóm', 0]);
+    const curTab = tabDef.some((t) => t[0] === s.tab) ? s.tab : 'members';
+    const tabs = tabDef.map(([id, label, badge]) => ({
+      label, selected: curTab === id, hasBadge: badge > 0, badge,
+      style: curTab === id ? 'color:#1B2F94;font-weight:700;border-bottom-color:#2748D8' : 'color:#3F4A5E;font-weight:500',
+      pick: () => this.setState({ tab: id })
+    }));
+
+    const rows = s.members.filter((m) => {
+      const q = s.q.trim().toLowerCase();
+      if (q && (m.name + ' ' + m.mssv).toLowerCase().indexOf(q) < 0) return false;
+      if (s.roleF === 'lead') return m.lead;
+      if (s.roleF === 'mem') return !m.lead;
+      return true;
+    }).map((m, i) => ({
+      name: m.name, mssv: m.mssv, tasks: m.tasks, ini: initials(m.name),
+      role: m.lead ? 'Trưởng nhóm' : 'Thành viên',
+      roleStyle: m.lead ? 'background:#E8EDFD;color:#1B2F94' : 'background:#EBEEF4;color:#3F4A5E',
+      online: m.online ? 'Đang trực tuyến' : 'Ngoại tuyến',
+      dotStyle: m.online ? 'background:#13693A' : 'background:#8A94A8',
+      avStyle: 'background:' + palette[(m.id - 1) % palette.length] + '22;color:' + palette[(m.id - 1) % palette.length],
+      canManage: !m.lead, isSelf: m.lead,
+      transfer: () => this.setState({ modal: { type: 'transfer', m } }),
+      remove: () => this.setState({ modal: { type: 'remove', m } })
+    }));
+
+    const requests = s.requests.map((r) => ({
+      ...r, ini: initials(r.name),
+      approve: () => this.setState({
+        requests: s.requests.filter((x) => x.id !== r.id),
+        members: [...s.members, { id: s.members.length + 1, name: r.name, mssv: r.mssv, lead: false, online: false, tasks: 0 }],
+        logs: pushLog('Duyệt yêu cầu tham gia', 'membership: Pending → Active (Thành viên)', r.name, 'SUCCESS'),
+        toast: 'Đã duyệt ' + r.name + '. Người này trở thành Thành viên và nhận thông báo.'
+      }),
+      reject: () => this.setState({ modal: { type: 'reject', r } })
+    }));
+
+    const logs = s.logs.filter((l) => {
+      const q = s.hq.trim().toLowerCase();
+      if (q && (l.who + ' ' + l.action + ' ' + l.target).toLowerCase().indexOf(q) < 0) return false;
+      return s.hr === 'all' || l.res === s.hr;
+    }).map((l) => ({
+      ...l, ip: isLeader ? l.ip : 'Ẩn',
+      resStyle: l.res === 'SUCCESS' ? 'background:#E3F5EA;color:#13693A' : 'background:#FDE5E3;color:#A3231B'
+    }));
+
+    const invites = s.invites.map((iv) => ({
+      ...iv,
+      cancel: () => this.setState({ invites: s.invites.filter((x) => x.id !== iv.id), logs: pushLog('Thu hồi lời mời', 'invite: Pending → Cancelled', iv.who), toast: 'Đã thu hồi lời mời gửi tới ' + iv.who + '.' })
+    }));
+
+    const md = s.modal;
+    let m = { title: '', body: '', warn: false, warnText: '', reason: false, handover: false, btn: '', danger: true, go: () => {} };
+    if (md && md.type === 'remove') {
+      m = { title: 'Xóa ' + md.m.name + ' khỏi nhóm?', body: 'Người này mất quyền truy cập nhóm. Hành động được ghi vào lịch sử.', warn: md.m.tasks > 0, warnText: 'Người này đang giữ ' + md.m.tasks + ' task chưa hoàn thành. Hãy giao lại các task đó sau khi xóa.', btn: 'Xóa khỏi nhóm', danger: true,
+        go: () => this.setState({ members: s.members.filter((x) => x.id !== md.m.id), modal: null, logs: pushLog('Xóa thành viên khỏi nhóm', 'membership: Active → Removed', md.m.name), toast: 'Đã xóa ' + md.m.name + ' khỏi nhóm.' }) };
+    } else if (md && md.type === 'transfer') {
+      m = { title: 'Chuyển quyền Trưởng nhóm cho ' + md.m.name + '?', body: 'Sau khi xác nhận, ' + md.m.name + ' là Trưởng nhóm duy nhất và bạn trở thành Thành viên. Bạn không thể tự lấy lại quyền này.', btn: 'Chuyển quyền', danger: false,
+        go: () => this.setState({ members: s.members.map((x) => ({ ...x, lead: x.id === md.m.id })), modal: null, logs: pushLog('Bàn giao Trưởng nhóm', 'role: Thành viên → Trưởng nhóm (' + md.m.name + ')', 'Membership #' + md.m.id), toast: 'Đã chuyển quyền cho ' + md.m.name + '. Cả nhóm nhận được thông báo.' }) };
+    } else if (md && md.type === 'reject') {
+      m = { title: 'Từ chối yêu cầu của ' + md.r.name + '?', body: 'Người nộp sẽ nhận thông báo kèm lý do bên dưới.', reason: true, btn: 'Từ chối yêu cầu', danger: true,
+        go: () => this.setState({ requests: s.requests.filter((x) => x.id !== md.r.id), modal: null, logs: pushLog('Từ chối yêu cầu tham gia', 'membership: Pending → Rejected', md.r.name), toast: 'Đã từ chối ' + md.r.name + ' và gửi lý do.' }) };
+    } else if (md && md.type === 'disband') {
+      m = { title: 'Giải tán nhóm?', body: 'Nhóm chuyển sang lưu trữ. Dữ liệu được giữ để xem lại nhưng không thể thêm nội dung mới.', btn: 'Giải tán nhóm', danger: true,
+        go: () => this.setState({ modal: null, logs: pushLog('Giải tán nhóm', 'group: Active → Archived', 'Nhóm KTD01'), toast: 'Nhóm đã chuyển sang trạng thái lưu trữ (bản demo).' }) };
+    } else if (md && md.type === 'leave') {
+      m = isLeader
+        ? { title: 'Bạn chưa thể rời nhóm', body: 'Trưởng nhóm cần bàn giao quyền cho một thành viên trước khi rời. Mở danh sách thành viên và chọn Chuyển quyền.', btn: 'Đã hiểu', danger: false, go: () => this.setState({ modal: null }) }
+        : { title: 'Rời nhóm?', body: 'Bạn mất quyền truy cập nhóm này.', warn: true, warnText: 'Bạn đang giữ task chưa hoàn thành. Chọn người nhận bàn giao.', handover: true, btn: 'Rời nhóm', danger: true, go: () => this.setState({ modal: null, toast: 'Đã gửi yêu cầu rời nhóm và bàn giao task (bản demo).' }) };
+    }
+
+    return {
+      roleLabel: isLeader ? 'Trưởng nhóm' : 'Thành viên', isLeader, memberCount: s.members.length,
+      tabs, isMembers: curTab === 'members', isRequests: curTab === 'requests', isSettings: curTab === 'settings', isHistory: curTab === 'history',
+      rows, noRows: rows.length === 0, q: s.q, iQ: h('q'), iRole: (e) => this.setState({ roleF: e.target.value }),
+      requests, noRequests: requests.length === 0,
+      inv: s.inv, iInv: h('inv'), invErr: s.invErr, invBorder: s.invErr ? 'var(--bad)' : 'var(--line-strong)', invites, invCount: invites.length,
+      sendInv: () => {
+        const v = s.inv.trim();
+        if (!v) { this.setState({ invErr: 'Nhập email hoặc MSSV người được mời.' }); return; }
+        if (s.members.some((x) => x.mssv.toLowerCase() === v.toLowerCase())) { this.setState({ invErr: 'Người này đã là thành viên của nhóm.' }); return; }
+        if (s.invites.some((x) => x.who.toLowerCase() === v.toLowerCase())) { this.setState({ invErr: 'Bạn đã gửi lời mời cho người này.' }); return; }
+        this.setState({ invites: [{ id: Date.now(), who: v, note: 'Gửi hôm nay · hết hạn sau 7 ngày' }, ...s.invites], inv: '', invErr: '', logs: pushLog('Gửi lời mời thành viên', 'invite: none → Pending', v), toast: 'Đã gửi lời mời tới ' + v + '.' });
+      },
+      gName: s.gName, gDesc: s.gDesc, iGName: h('gName'), iGDesc: h('gDesc'),
+      saveInfo: () => {
+        if (s.gName.trim().length < 3 || s.gName.trim().length > 50 || s.gDesc.length > 255) { this.setState({ toast: 'Tên nhóm cần 3–50 ký tự; mô tả tối đa 255 ký tự.' }); return; }
+        this.setState({ logs: pushLog('Cập nhật thông tin nhóm', 'name/description', s.gName), toast: 'Đã lưu thông tin nhóm.' });
+      },
+      approval: s.approval, switchStyle: s.approval ? 'background:#2748D8;justify-content:flex-end' : 'background:#8A94A8;justify-content:flex-start',
+      approvalHelp: s.approval ? 'Đang bật: người vào bằng mã mời phải chờ duyệt; chấp nhận lời mời thì vào ngay.' : 'Đang tắt: người vào bằng mã mời hoặc chấp nhận lời mời trở thành Thành viên ngay.',
+      toggleApproval: () => this.setState({ approval: !s.approval, logs: pushLog('Đổi cài đặt duyệt thành viên', 'approvalEnabled: ' + s.approval + ' → ' + !s.approval, 'Cài đặt nhóm'), toast: s.approval ? 'Đã tắt duyệt. Yêu cầu đang chờ vẫn giữ nguyên.' : 'Đã bật duyệt thành viên.' }),
+      code: s.code,
+      newCode: () => { const c = 'KTD-' + Math.random().toString(36).slice(2, 6).toUpperCase(); this.setState({ code: c, logs: pushLog('Tạo lại mã mời', 'code: ' + s.code + ' → ' + c, 'Cài đặt nhóm'), toast: 'Mã mời cũ đã hết hiệu lực. Mã mới: ' + c }); },
+      openDisband: () => this.setState({ modal: { type: 'disband' } }),
+      openLeave: () => this.setState({ modal: { type: 'leave' } }),
+      hq: s.hq, iHq: h('hq'), iHr: (e) => this.setState({ hr: e.target.value }), logRows: logs, noLogs: logs.length === 0,
+      hasToast: !!s.toast, toast: s.toast, closeToast: () => this.setState({ toast: '' }),
+      hasModal: !!md, mTitle: m.title, mBody: m.body, mWarn: m.warn, mWarnText: m.warnText, mReason: m.reason, mHandover: m.handover,
+      reason: s.reason, iReason: h('reason'), mBtn: m.btn,
+      mBtnStyle: m.danger ? 'border:0;background:#A3231B;color:#fff' : 'border:0;background:#2748D8;color:#fff',
+      closeModal: () => this.setState({ modal: null }), confirm: m.go
+    };
+  }
+}
+</script>
+</body>
+</html>

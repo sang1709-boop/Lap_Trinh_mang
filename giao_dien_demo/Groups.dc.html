@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Danh sách nhóm</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="groups" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1200px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:28px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+      <div>
+        <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.4px">Nhóm của tôi</h1>
+        <div style="font-size:15px;color:var(--mute);line-height:1.5;max-width:560px">Vai trò gắn với từng nhóm: bạn có thể là Trưởng nhóm ở nhóm này và Thành viên ở nhóm khác.</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <button onClick="{{openJoin}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Tham gia bằng mã mời</button>
+        <button onClick="{{openCreate}}" style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">+ Tạo nhóm</button>
+      </div>
+    </div>
+
+    <sc-if value="{{hasInvites}}" hint-placeholder-val="{{ true }}">
+      <section aria-labelledby="inv-h" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+        <h2 id="inv-h" style="margin:0;font-size:18px;font-weight:700">Lời mời đang chờ phản hồi</h2>
+        <sc-for list="{{invites}}" as="iv" hint-placeholder-count="1">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#FAFBFD">
+            <div style="flex:1 1 280px">
+              <div style="font-size:16px;font-weight:600">{{iv.group}}</div>
+              <div style="font-size:14px;color:var(--ink2);margin-top:2px">{{iv.from}} mời bạn: “{{iv.msg}}”</div>
+              <div style="font-size:13px;color:var(--mute);margin-top:4px">Lời mời {{iv.expires}}</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button onClick="{{iv.decline}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Từ chối</button>
+              <button onClick="{{iv.accept}}" style="height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Chấp nhận</button>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <section aria-label="Danh sách nhóm" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px">
+      <sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+        <article style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;{{g.cardStyle}}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div style="min-width:0">
+              <h3 style="margin:0;font-size:18px;font-weight:700;line-height:1.35">{{g.name}}</h3>
+              <div style="font-size:14px;color:var(--mute);margin-top:4px">{{g.course}}</div>
+            </div>
+            <span style="flex:none;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;{{g.statusStyle}}">{{g.statusLabel}}</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:14px;color:var(--ink2)">
+            <span><b style="font-weight:600">{{g.role}}</b></span>
+            <span>{{g.members}} thành viên</span>
+          </div>
+          <div style="font-size:14px;color:var(--ink2);line-height:1.5">{{g.meta}}</div>
+          <div style="margin-top:auto;padding-top:4px">
+            <sc-if value="{{g.canOpen}}" hint-placeholder-val="{{ true }}">
+              <a href="Dashboard.dc.html" style="display:flex;align-items:center;justify-content:center;height:44px;border-radius:10px;background:#141B2D;color:#fff;font-size:15px;font-weight:600">Mở nhóm</a>
+            </sc-if>
+            <sc-if value="{{g.isArchived}}" hint-placeholder-val="{{ false }}">
+              <a href="Group.dc.html" style="display:flex;align-items:center;justify-content:center;height:44px;border-radius:10px;border:1px solid var(--line-strong);color:var(--ink);font-size:15px;font-weight:600">Xem lịch sử</a>
+            </sc-if>
+            <sc-if value="{{g.isPending}}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;justify-content:center;height:44px;border-radius:10px;background:#F1F3F8;color:var(--mute);font-size:14px;font-weight:600">Chờ Trưởng nhóm duyệt</div>
+            </sc-if>
+          </div>
+        </article>
+      </sc-for>
+    </section>
+  </main>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;background:#141B2D;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.5;box-shadow:0 12px 32px rgba(20,27,45,0.3)">
+      <span>{{toast}}</span>
+      <button onClick="{{closeToast}}" style="flex:none;height:32px;padding:0 12px;border:1px solid #5A6684;border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600">Đóng</button>
+    </div>
+  </sc-if>
+
+  <!-- Modal tạo nhóm -->
+  <sc-if value="{{isCreate}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;background:rgba(20,27,45,0.5);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+      <div role="dialog" aria-modal="true" aria-labelledby="cr-h" style="width:100%;max-width:520px;max-height:100%;overflow-y:auto;background:#fff;border-radius:16px;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="cr-h" style="margin:0;font-size:22px;font-weight:700">Tạo nhóm mới</h2>
+          <button onClick="{{closeModal}}" aria-label="Đóng" style="width:40px;height:40px;border:0;border-radius:8px;background:#EEF1F7;color:var(--ink)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="c-name" style="font-size:14px;font-weight:600">Tên nhóm (3–50 ký tự)</label>
+          <input id="c-name" type="text" value="{{cName}}" onInput="{{iCName}}" style="height:44px;border:1px solid {{cNameBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{cNameErr}}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="c-course" style="font-size:14px;font-weight:600">Môn học / Lớp (không bắt buộc)</label>
+          <input id="c-course" type="text" value="{{cCourse}}" onInput="{{iCCourse}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="c-desc" style="font-size:14px;font-weight:600">Mô tả (không bắt buộc)</label>
+          <textarea id="c-desc" maxlength="255" rows="3" onInput="{{iCDesc}}" style="border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{cDesc}}</textarea>
+          <div style="font-size:13px;color:var(--mute);text-align:right">{{cDescLen}}/255</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:#FAFBFD">
+          <div>
+            <div style="font-size:15px;font-weight:600">Bật duyệt thành viên tham gia</div>
+            <div style="font-size:13px;color:var(--mute);line-height:1.5;margin-top:2px">Bật: người vào bằng mã mời phải chờ duyệt. Chấp nhận lời mời của Trưởng nhóm thì vào nhóm ngay.</div>
+          </div>
+          <button role="switch" aria-checked="{{cApproval}}" aria-label="Bật duyệt thành viên tham gia" onClick="{{toggleApproval}}" style="flex:none;width:52px;height:30px;border:0;border-radius:15px;padding:3px;display:flex;{{cSwitchStyle}}">
+            <span style="width:24px;height:24px;border-radius:50%;background:#fff;display:block"></span>
+          </button>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button onClick="{{closeModal}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Hủy</button>
+          <button onClick="{{doCreate}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Tạo nhóm</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Modal tham gia bằng mã -->
+  <sc-if value="{{isJoin}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;background:rgba(20,27,45,0.5);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+      <div role="dialog" aria-modal="true" aria-labelledby="jn-h" style="width:100%;max-width:460px;background:#fff;border-radius:16px;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="jn-h" style="margin:0;font-size:22px;font-weight:700">Tham gia bằng mã mời</h2>
+          <button onClick="{{closeModal}}" aria-label="Đóng" style="width:40px;height:40px;border:0;border-radius:8px;background:#EEF1F7;color:var(--ink)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div style="background:var(--primary-soft);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.6;color:#1B2F94">Mã demo: <b>KTD-7QX2</b> (nhóm bật duyệt, sẽ vào trạng thái Chờ duyệt) và <b>KTD-4MZ9</b> (nhóm tắt duyệt, vào ngay).</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="j-code" style="font-size:14px;font-weight:600">Mã mời</label>
+          <input id="j-code" type="text" value="{{jCode}}" onInput="{{iJCode}}" style="height:48px;border:1px solid {{jBorder}};border-radius:8px;padding:0 14px;font:inherit;font-size:18px;font-weight:600;letter-spacing:2px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);text-transform:uppercase">
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{jErr}}</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button onClick="{{closeModal}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Hủy</button>
+          <button onClick="{{doJoin}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Tham gia</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: 'none', toast: '',
+      cName: '', cCourse: '', cDesc: '', cApproval: false, cTried: false,
+      jCode: '', jErr: '',
+      invites: [
+        { id: 1, group: 'Nhóm Thực hành SPSS', from: 'Lê Thu Hà', msg: 'Vào nhóm làm bài tập lớn nhé', expires: 'hết hạn 30/10' }
+      ],
+      groups: [
+        { id: 1, name: 'Đồ án Phát triển ứng dụng web', course: 'Lớp KTD01 · Phát triển ứng dụng web', role: 'Trưởng nhóm', members: 6, status: 'active', meta: '10 task đang hiển thị · 2 sắp hạn · 2 quá hạn' },
+        { id: 2, name: 'Nhóm Kinh tế lượng', course: 'Lớp KTD02', role: 'Thành viên', members: 5, status: 'active', meta: '7 task · 1 sắp hạn · bạn đang được giao 3 task' },
+        { id: 3, name: 'Seminar Phân tích dữ liệu', course: 'Lớp KTD03', role: 'Chưa có vai trò', members: 4, status: 'pending', meta: 'Yêu cầu tham gia của bạn đang chờ Trưởng nhóm duyệt.' },
+        { id: 4, name: 'Đồ án Kế toán quản trị', course: 'Học kỳ trước', role: 'Thành viên', members: 5, status: 'archived', meta: 'Nhóm đã giải tán (lưu trữ). Task, chat và nhật ký vẫn được giữ để xem lại.' }
+      ]
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const h = (k) => (e) => this.setState({ [k]: e.target.value });
+    const stat = {
+      active: { label: 'Đang hoạt động', style: 'background:#E3F5EA;color:#13693A' },
+      pending: { label: 'Chờ duyệt', style: 'background:#FFF1CC;color:#7A4B00' },
+      archived: { label: 'Đã lưu trữ', style: 'background:#EBEEF4;color:#3F4A5E' }
+    };
+    const groups = s.groups.map((g) => ({
+      ...g,
+      statusLabel: stat[g.status].label, statusStyle: stat[g.status].style,
+      canOpen: g.status === 'active', isPending: g.status === 'pending', isArchived: g.status === 'archived',
+      cardStyle: g.status === 'archived' ? 'background:#FAFBFD' : ''
+    }));
+    const invites = s.invites.map((iv) => ({
+      ...iv,
+      accept: () => this.setState({
+        invites: s.invites.filter((x) => x.id !== iv.id),
+        groups: [{ id: Date.now(), name: iv.group, course: 'Lời mời từ ' + iv.from, role: 'Thành viên', members: 5, status: 'active', meta: 'Bạn đã chấp nhận lời mời và trở thành Thành viên.' }, ...s.groups],
+        toast: 'Đã chấp nhận lời mời và vào nhóm. Trưởng nhóm đã nhận thông báo.'
+      }),
+      decline: () => this.setState({ invites: s.invites.filter((x) => x.id !== iv.id), toast: 'Đã từ chối lời mời. Người mời sẽ nhận thông báo.' })
+    }));
+    const nameLen = s.cName.trim().length;
+    const cNameErr = s.cTried && (nameLen < 3 || nameLen > 50) ? 'Tên nhóm cần từ 3 đến 50 ký tự.' : '';
+    return {
+      groups, invites, hasInvites: invites.length > 0,
+      hasToast: !!s.toast, toast: s.toast, closeToast: () => this.setState({ toast: '' }),
+      isCreate: s.modal === 'create', isJoin: s.modal === 'join',
+      openCreate: () => this.setState({ modal: 'create', cTried: false }),
+      openJoin: () => this.setState({ modal: 'join', jErr: '', jCode: '' }),
+      closeModal: () => this.setState({ modal: 'none' }),
+
+      cName: s.cName, cCourse: s.cCourse, cDesc: s.cDesc, cDescLen: s.cDesc.length,
+      iCName: h('cName'), iCCourse: h('cCourse'), iCDesc: h('cDesc'),
+      cNameErr, cNameBorder: cNameErr ? 'var(--bad)' : 'var(--line-strong)',
+      cApproval: s.cApproval,
+      cSwitchStyle: s.cApproval ? 'background:#2748D8;justify-content:flex-end' : 'background:#8A94A8;justify-content:flex-start',
+      toggleApproval: () => this.setState({ cApproval: !s.cApproval }),
+      doCreate: () => {
+        if (nameLen < 3 || nameLen > 50) { this.setState({ cTried: true }); return; }
+        if (s.cDesc.length > 255) { this.setState({ toast: 'Mô tả tối đa 255 ký tự.' }); return; }
+        if (s.groups.some(g => g.role === 'Trưởng nhóm' && g.name.toLowerCase() === s.cName.trim().toLowerCase())) { this.setState({ toast: 'Bạn đã tạo nhóm có tên này.' }); return; }
+        const g = { id: Date.now(), name: s.cName.trim(), course: s.cCourse.trim() || 'Chưa nhập môn học/lớp', role: 'Trưởng nhóm', members: 1, status: 'active', meta: 'Chưa có task · duyệt thành viên: ' + (s.cApproval ? 'Bật' : 'Tắt') + '.' };
+        this.setState({ groups: [g, ...s.groups], modal: 'none', cName: '', cCourse: '', cDesc: '', cApproval: false, cTried: false, toast: 'Đã tạo nhóm. Mã mời: KTD-Q8RL. Bạn là Trưởng nhóm duy nhất của nhóm này.' });
+      },
+
+      jCode: s.jCode, iJCode: h('jCode'), jErr: s.jErr, jBorder: s.jErr ? 'var(--bad)' : 'var(--line-strong)',
+      doJoin: () => {
+        const c = s.jCode.trim().toUpperCase();
+        if (!c) { this.setState({ jErr: 'Nhập mã mời.' }); return; }
+        if (c === 'KTD-7QX2') {
+          this.setState({ groups: [{ id: Date.now(), name: 'Seminar Kinh tế vi mô', course: 'Lớp KTD04', role: 'Chưa có vai trò', members: 5, status: 'pending', meta: 'Nhóm bật duyệt: yêu cầu của bạn đang chờ Trưởng nhóm duyệt.' }, ...s.groups], modal: 'none', toast: 'Mã hợp lệ. Nhóm bật duyệt nên bạn ở trạng thái Chờ duyệt.' });
+        } else if (c === 'KTD-4MZ9') {
+          this.setState({ groups: [{ id: Date.now(), name: 'Nhóm Thuế và kế toán', course: 'Lớp KTD05', role: 'Thành viên', members: 6, status: 'active', meta: 'Nhóm tắt duyệt: bạn đã vào nhóm ngay với vai trò Thành viên.' }, ...s.groups], modal: 'none', toast: 'Mã hợp lệ. Nhóm tắt duyệt nên bạn đã là thành viên.' });
+        } else {
+          this.setState({ jErr: 'Mã mời không đúng hoặc đã hết hiệu lực.' });
+        }
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

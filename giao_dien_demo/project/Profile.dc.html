@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hồ sơ cá nhân</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="profile" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1200px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:24px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:18px">
+      <span style="width:64px;height:64px;border-radius:50%;background:#2748D8;color:#fff;font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center">MA</span>
+      <div>
+        <h1 style="margin:0 0 4px;font-size:28px;font-weight:700;letter-spacing:-0.4px">{{fullName}}</h1>
+        <div style="font-size:15px;color:var(--mute)">MSSV 20KTD001 · Trưởng nhóm Đồ án Phát triển ứng dụng web</div>
+      </div>
+    </div>
+
+    <div role="tablist" aria-label="Mục hồ sơ" style="display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid var(--line)">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+        <button role="tab" aria-selected="{{t.selected}}" onClick="{{t.pick}}" style="height:46px;padding:0 16px;border:0;border-bottom:3px solid transparent;background:none;font-size:15px;{{t.style}}">{{t.label}}</button>
+      </sc-for>
+    </div>
+
+    <!-- THÔNG TIN -->
+    <sc-if value="{{isInfo}}" hint-placeholder-val="{{ true }}">
+      <section aria-label="Thông tin cá nhân" style="max-width:760px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:20px">
+        <h2 style="margin:0;font-size:18px;font-weight:700">Thông tin cá nhân</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="p-name" style="font-size:14px;font-weight:600">Họ và tên (2–100 ký tự)</label>
+            <input id="p-name" type="text" value="{{fullName}}" onInput="{{iName}}" style="height:44px;border:1px solid {{nameBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+            <div role="alert" style="font-size:13px;color:var(--bad)">{{nameErr}}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="p-mssv" style="font-size:14px;font-weight:600">MSSV</label>
+            <input id="p-mssv" type="text" value="20KTD001" disabled style="height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#F1F3F8;color:var(--mute);width:100%">
+            <div style="font-size:13px;color:var(--mute)">MSSV là mã đăng nhập nên không đổi được.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="p-mail" style="font-size:14px;font-weight:600">Email</label>
+            <input id="p-mail" type="email" value="{{email}}" onInput="{{iMail}}" style="height:44px;border:1px solid {{mailBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+            <div role="alert" style="font-size:13px;color:var(--bad)">{{mailErr}}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label for="p-dob" style="font-size:14px;font-weight:600">Ngày sinh</label>
+            <input id="p-dob" type="date" value="{{dob}}" onInput="{{iDob}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end"><button onClick="{{saveInfo}}" style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Lưu thay đổi</button></div>
+      </section>
+    </sc-if>
+
+    <!-- BẢO MẬT -->
+    <sc-if value="{{isSec}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Đổi mật khẩu" style="max-width:560px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;display:flex;flex-direction:column;gap:18px">
+        <h2 style="margin:0;font-size:18px;font-weight:700">Đổi mật khẩu</h2>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="s-old" style="font-size:14px;font-weight:600">Mật khẩu hiện tại</label>
+          <input id="s-old" type="password" value="{{pOld}}" onInput="{{iOld}}" autocomplete="current-password" style="height:44px;border:1px solid {{oldBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{oldErr}}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="s-new" style="font-size:14px;font-weight:600">Mật khẩu mới (8–32 ký tự)</label>
+          <div style="display:flex;gap:8px">
+            <input id="s-new" type="{{pwType}}" value="{{pNew}}" onInput="{{iNew}}" autocomplete="new-password" style="flex:1;min-width:0;height:44px;border:1px solid {{newBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink)">
+            <button onClick="{{toggleShow}}" aria-pressed="{{show}}" style="flex:none;height:44px;padding:0 14px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:14px;font-weight:600">{{showLabel}}</button>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px" aria-hidden="true">
+            <sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span style="flex:1;height:6px;border-radius:3px;{{b.style}}"></span></sc-for>
+          </div>
+          <div style="font-size:13px;color:var(--ink2)">Độ mạnh: <b>{{strengthLabel}}</b></div>
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{newErr}}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="s-cf" style="font-size:14px;font-weight:600">Nhập lại mật khẩu mới</label>
+          <input id="s-cf" type="password" value="{{pCf}}" onInput="{{iCf}}" autocomplete="new-password" style="height:44px;border:1px solid {{cfBorder}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{cfErr}}</div>
+        </div>
+        <ul style="margin:0;padding:12px 16px 12px 32px;background:#F7F8FB;border-radius:10px;font-size:13px;color:var(--ink2);line-height:1.7">
+          <li>Dài từ 8 đến 32 ký tự</li><li>Bắt buộc có chữ hoa, chữ thường, số và ký tự đặc biệt; không khoảng trắng, không chứa MSSV</li><li>Khác mật khẩu hiện tại</li>
+        </ul>
+        <div style="display:flex;justify-content:flex-end"><button onClick="{{savePw}}" style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Đổi mật khẩu</button></div>
+      </section>
+    </sc-if>
+
+    <!-- LỊCH RẢNH -->
+    <sc-if value="{{isSched}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+        <section aria-label="Lịch rảnh trong tuần" style="flex:999 1 620px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:16px">
+          <div>
+            <h2 style="margin:0 0 4px;font-size:18px;font-weight:700">Khung giờ có thể làm việc</h2>
+            <div style="font-size:14px;color:var(--mute);line-height:1.5">Bấm vào ô để bật hoặc tắt. Mỗi ô là 2 giờ. Trưởng nhóm dùng quỹ giờ này để tính mức tải trước khi giao việc.</div>
+          </div>
+          <div style="overflow-x:auto">
+            <div style="min-width:560px;display:grid;grid-template-columns:76px repeat(7,minmax(0,1fr));gap:6px;align-items:center">
+              <div></div>
+              <sc-for list="{{days}}" as="d" hint-placeholder-count="7"><div style="text-align:center;font-size:13px;font-weight:700;color:var(--ink2)">{{d.label}}</div></sc-for>
+            </div>
+            <sc-for list="{{slotRows}}" as="r" hint-placeholder-count="7">
+              <div style="min-width:560px;display:grid;grid-template-columns:76px repeat(7,minmax(0,1fr));gap:6px;align-items:center;margin-top:6px">
+                <div style="font-size:13px;color:var(--mute)">{{r.label}}</div>
+                <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="7">
+                  <button onClick="{{c.toggle}}" aria-pressed="{{c.on}}" aria-label="{{c.aria}}" style="height:44px;border-radius:8px;font-size:12px;font-weight:700;{{c.style}}">{{c.mark}}</button>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--ink2)">
+            <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#2748D8;vertical-align:-1px;margin-right:6px"></span>Có thể làm việc</span>
+            <span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#EEF1F7;border:1px solid #C6CEDC;vertical-align:-1px;margin-right:6px"></span>Bận</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end">
+            <button onClick="{{clearSched}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Xóa hết</button>
+            <button onClick="{{saveSched}}" style="height:44px;padding:0 22px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Lưu lịch rảnh</button>
+          </div>
+        </section>
+
+        <aside aria-label="Quỹ giờ và mức tải" style="flex:1 1 280px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-size:18px;font-weight:700">Quỹ giờ tuần này</h2>
+          <div><span style="font-size:36px;font-weight:700;letter-spacing:-1px">{{hours}}</span> <span style="font-size:15px;color:var(--mute)">giờ rảnh / tuần</span></div>
+          <div style="font-size:14px;color:var(--ink2)">Đang được giao: <b>{{assigned}} giờ</b> từ 2 task chưa hoàn thành</div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px"><span style="color:var(--mute)">Mức tải</span><b style="color:{{loadColor}}">{{loadPct}}%</b></div>
+            <div style="height:10px;border-radius:5px;background:#EEF1F7;overflow:hidden"><div style="height:100%;border-radius:5px;width:{{loadBar}}%;background:{{loadColor}}"></div></div>
+          </div>
+          <div style="border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.55;{{loadNoteStyle}}">{{loadNote}}</div>
+          <div style="font-size:12px;color:var(--mute);line-height:1.5">Ngưỡng cảnh báo: dưới 70% là xanh; 70–100% là vàng; trên 100% là đỏ.</div>
+        </aside>
+      </div>
+    </sc-if>
+
+    <!-- HOẠT ĐỘNG CỦA TÔI -->
+    <sc-if value="{{isAct}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Hoạt động của tôi" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:flex-end">
+          <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:4px">
+            <label for="a-q" style="font-size:13px;font-weight:600;color:var(--ink2)">Tìm hành động hoặc đối tượng</label>
+            <input id="a-q" type="text" value="{{aq}}" onInput="{{iAq}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box;background:#fff;color:var(--ink);width:100%">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label for="a-r" style="font-size:13px;font-weight:600;color:var(--ink2)">Kết quả</label>
+            <select id="a-r" onChange="{{iAr}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+              <option value="all">Tất cả</option><option value="SUCCESS">SUCCESS</option><option value="FAILED">FAILED</option>
+            </select>
+          </div>
+          <div style="font-size:13px;color:var(--mute);padding-bottom:12px">Chỉ gồm thao tác của bạn. Địa chỉ IP không hiển thị cho thành viên.</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;min-width:680px">
+            <thead><tr style="text-align:left;font-size:13px;color:var(--mute)">
+              <th scope="col" style="padding:12px 20px;font-weight:600">Thời gian</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Hành động</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Đối tượng</th>
+              <th scope="col" style="padding:12px 20px;font-weight:600">Kết quả</th>
+            </tr></thead>
+            <tbody>
+              <sc-for list="{{acts}}" as="a" hint-placeholder-count="6">
+                <tr style="border-top:1px solid var(--line);vertical-align:top">
+                  <td style="padding:12px 20px;font-size:14px;color:var(--ink2);white-space:nowrap">{{a.when}}</td>
+                  <td style="padding:12px 8px;font-size:14px;color:var(--ink2);line-height:1.5">{{a.action}}<span style="display:block;font-size:12px;color:var(--mute)">{{a.note}}</span></td>
+                  <td style="padding:12px 8px;font-size:14px;color:var(--ink2)">{{a.target}}</td>
+                  <td style="padding:12px 20px"><span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;{{a.resStyle}}">{{a.res}}</span></td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <sc-if value="{{noActs}}" hint-placeholder-val="{{ false }}"><div style="padding:28px;text-align:center;font-size:14px;color:var(--mute)">Không có hoạt động phù hợp.</div></sc-if>
+      </section>
+    </sc-if>
+  </main>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;background:#141B2D;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.5;box-shadow:0 12px 32px rgba(20,27,45,0.3)">
+      <span>{{toast}}</span>
+      <button onClick="{{closeToast}}" style="flex:none;height:32px;padding:0 12px;border:1px solid #5A6684;border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600">Đóng</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'info', toast: '',
+      fullName: 'Nguyễn Minh Anh', email: 'minhanh@truong.edu.vn', dob: '2003-03-09', nameErr: '', mailErr: '',
+      pOld: '', pNew: '', pCf: '', show: false, tried: false,
+      on: { '0-4': 1, '1-4': 1, '2-3': 1, '3-4': 1, '3-5': 1, '4-4': 1, '5-1': 1, '5-2': 1, '6-1': 1, '6-2': 1, '1-2': 1, '2-5': 1 },
+      aq: '', ar: 'all',
+      acts: [
+        { when: '27/10 08:30', action: 'Bình luận trong task', note: '', target: 'Cài đặt module đăng nhập', res: 'SUCCESS' },
+        { when: '26/10 17:45', action: 'Giao task cho Trần Quốc Bảo', note: 'assignee: chưa có → Trần Quốc Bảo', target: 'Thiết kế sơ đồ ERD', res: 'SUCCESS' },
+        { when: '26/10 17:40', action: 'Xem mô phỏng phân công', note: 'Ứng viên Phạm Gia Huy: tải 112%', target: 'Thiết kế sơ đồ ERD', res: 'SUCCESS' },
+        { when: '25/10 14:05', action: 'Sửa task đang thực hiện', note: 'Bị từ chối: chỉ sửa được task Chưa thực hiện', target: 'Xây dựng API xác thực', res: 'FAILED' },
+        { when: '25/10 10:15', action: 'Gửi lời mời thành viên', note: '', target: 'khoa.dang@truong.edu.vn', res: 'SUCCESS' },
+        { when: '24/10 16:30', action: 'Bật duyệt thành viên tham gia', note: 'approvalEnabled: false → true', target: 'Cài đặt nhóm', res: 'SUCCESS' },
+        { when: '24/10 08:02', action: 'Đăng nhập', note: '', target: 'Phiên đăng nhập', res: 'SUCCESS' }
+      ]
+    };
+  }
+  dobError(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'Chọn ngày sinh hợp lệ.';
+    const [y, m, d] = value.split('-').map(Number);
+    const born = new Date(y, m - 1, d), now = new Date();
+    if (born.getFullYear() !== y || born.getMonth() !== m - 1 || born.getDate() !== d) return 'Ngày sinh không hợp lệ.';
+    if (born > now) return 'Ngày sinh không được ở tương lai.';
+    const age = now.getFullYear() - y - ((now.getMonth() + 1 < m || (now.getMonth() + 1 === m && now.getDate() < d)) ? 1 : 0);
+    return age < 16 ? 'Người đăng ký phải đủ 16 tuổi.' : '';
+  }
+  renderVals() {
+    const s = this.state;
+    const h = (k) => (e) => this.setState({ [k]: e.target.value });
+    const tabDef = [['info', 'Thông tin'], ['sec', 'Bảo mật'], ['sched', 'Lịch rảnh'], ['act', 'Hoạt động của tôi']];
+    const tabs = tabDef.map(([id, label]) => ({
+      label, selected: s.tab === id,
+      style: s.tab === id ? 'color:#1B2F94;font-weight:700;border-bottom-color:#2748D8' : 'color:#3F4A5E;font-weight:500',
+      pick: () => this.setState({ tab: id })
+    }));
+
+    // Mật khẩu
+    const pw = s.pNew;
+    const validPw = pw.length >= 8 && pw.length <= 32 && /[A-Z]/.test(pw) && /[a-z]/.test(pw) && /[0-9]/.test(pw) && /[^A-Za-z0-9\s]/.test(pw) && !/\s/.test(pw) && !pw.toLowerCase().includes('20ktd001');
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw) || pw.length >= 12) score++;
+    const labels = ['Chưa nhập', 'Yếu', 'Trung bình', 'Khá', 'Mạnh'];
+    const colors = ['#E3E8F0', '#A3231B', '#B45309', '#2748D8', '#13693A'];
+    const bars = [1, 2, 3, 4].map((i) => ({ style: 'background:' + (i <= score ? colors[score] : '#E3E8F0') }));
+    const t = s.tried;
+    const oldErr = t && !s.pOld ? 'Nhập mật khẩu hiện tại.' : '';
+    const newErr = t && !validPw ? 'Mật khẩu cần 8–32 ký tự, đủ hoa/thường/số/ký tự đặc biệt, không khoảng trắng hoặc MSSV.' : (t && pw && pw === s.pOld ? 'Mật khẩu mới phải khác mật khẩu hiện tại.' : '');
+    const cfErr = t && s.pCf !== pw ? 'Mật khẩu nhập lại chưa khớp.' : '';
+    const bd = (e) => (e ? 'var(--bad)' : 'var(--line-strong)');
+
+    // Lịch rảnh
+    const days = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((label) => ({ label }));
+    const slots = ['07:00–09:00', '09:00–11:00', '13:00–15:00', '15:00–17:00', '19:00–21:00', '21:00–23:00'];
+    const dayName = ['Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy', 'Chủ nhật'];
+    const slotRows = slots.map((label, r) => ({
+      label,
+      cells: dayName.map((dn, c) => {
+        const k = c + '-' + r, on = !!s.on[k];
+        return {
+          on, mark: on ? '2h' : '', aria: dn + ' ' + label + (on ? ', có thể làm việc' : ', bận'),
+          style: on ? 'border:1px solid #2748D8;background:#2748D8;color:#fff' : 'border:1px solid #C6CEDC;background:#EEF1F7;color:#5B6678',
+          toggle: () => { const n = { ...s.on }; if (n[k]) delete n[k]; else n[k] = 1; this.setState({ on: n }); }
+        };
+      })
+    }));
+    const hours = Object.keys(s.on).length * 2;
+    const assigned = 17;
+    const pct = hours ? Math.round(assigned / hours * 100) : 999;
+    const lvl = pct > 100 ? 'bad' : pct >= 70 ? 'warn' : 'ok';
+    const col = { ok: '#13693A', warn: '#B45309', bad: '#A3231B' }[lvl];
+    const noteMap = {
+      ok: ['Còn đủ giờ. Trưởng nhóm có thể giao thêm task cho bạn.', 'background:#E3F5EA;color:#13693A'],
+      warn: ['Gần quá tải. Trưởng nhóm sẽ thấy cảnh báo vàng khi giao thêm task cho bạn.', 'background:#FFF1CC;color:#7A4B00'],
+      bad: ['Quá tải. Hãy mở thêm khung giờ rảnh hoặc báo Trưởng nhóm giao lại việc.', 'background:#FDE5E3;color:#A3231B']
+    };
+
+    // Hoạt động
+    const acts = s.acts.filter((a) => {
+      const q = s.aq.trim().toLowerCase();
+      if (q && (a.action + ' ' + a.target).toLowerCase().indexOf(q) < 0) return false;
+      return s.ar === 'all' || a.res === s.ar;
+    }).map((a) => ({ ...a, resStyle: a.res === 'SUCCESS' ? 'background:#E3F5EA;color:#13693A' : 'background:#FDE5E3;color:#A3231B' }));
+
+    return {
+      tabs, isInfo: s.tab === 'info', isSec: s.tab === 'sec', isSched: s.tab === 'sched', isAct: s.tab === 'act',
+      fullName: s.fullName, email: s.email, dob: s.dob, iName: h('fullName'), iMail: h('email'), iDob: h('dob'),
+      nameErr: s.nameErr, nameBorder: bd(s.nameErr), mailErr: s.mailErr, mailBorder: bd(s.mailErr),
+      saveInfo: () => {
+        const n = s.fullName.trim().length;
+        const ne = n < 2 || n > 100 ? 'Họ tên cần từ 2 đến 100 ký tự.' : '';
+        const me = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.email.trim()) ? '' : 'Email chưa đúng định dạng.';
+        this.setState({ nameErr: ne, mailErr: me, toast: this.dobError(s.dob) || (ne || me ? '' : 'Đã lưu thông tin cá nhân.') });
+      },
+      pOld: s.pOld, pNew: s.pNew, pCf: s.pCf, iOld: h('pOld'), iNew: h('pNew'), iCf: h('pCf'),
+      pwType: s.show ? 'text' : 'password', show: s.show, showLabel: s.show ? 'Ẩn' : 'Hiện', toggleShow: () => this.setState({ show: !s.show }),
+      bars, strengthLabel: labels[score],
+      oldErr, newErr, cfErr, oldBorder: bd(oldErr), newBorder: bd(newErr), cfBorder: bd(cfErr),
+      savePw: () => {
+        const bad = !s.pOld || !validPw || pw === s.pOld || s.pCf !== pw;
+        if (bad) { this.setState({ tried: true }); return; }
+        this.setState({ pOld: '', pNew: '', pCf: '', tried: false, toast: 'Đã đổi mật khẩu. Các phiên đăng nhập khác sẽ bị đăng xuất.' });
+      },
+      days, slotRows, hours, assigned, loadPct: hours ? pct : '–', loadBar: Math.min(hours ? pct : 100, 100), loadColor: col,
+      loadNote: hours ? noteMap[lvl][0] : 'Bạn chưa chọn khung giờ nào. Trưởng nhóm sẽ không thể giao việc cho bạn.', loadNoteStyle: hours ? noteMap[lvl][1] : noteMap.bad[1],
+      clearSched: () => this.setState({ on: {} }),
+      saveSched: () => this.setState({ toast: 'Đã lưu lịch rảnh: ' + hours + ' giờ mỗi tuần.' }),
+      aq: s.aq, iAq: h('aq'), iAr: (e) => this.setState({ ar: e.target.value }), acts, noActs: acts.length === 0,
+      hasToast: !!s.toast, toast: s.toast, closeToast: () => this.setState({ toast: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>

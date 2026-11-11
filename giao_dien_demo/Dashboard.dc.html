@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Tổng quan nhóm</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+button:disabled{cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="dashboard" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1280px;margin:0 auto;padding:28px 32px 56px;display:flex;flex-direction:column;gap:28px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px">
+      <div>
+        <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.4px">Tổng quan</h1>
+        <div style="font-size:15px;color:var(--mute)">Đồ án Phát triển ứng dụng web · {{roleLabel}} · Thứ Hai, 26/10/2026</div>
+      </div>
+      <div style="font-size:13px;color:var(--mute);max-width:420px;line-height:1.5">Tiến độ tính theo task lá (không cộng trùng task cha và task con). Task xóa mềm không tính vào việc đang mở.</div>
+    </div>
+
+    <!-- GIỮA: TIẾN ĐỘ -->
+    <section aria-labelledby="pg-h" style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+        <h2 id="pg-h" style="margin:0;font-size:20px;font-weight:700">Tiến độ</h2>
+        <div role="tablist" style="display:flex;gap:4px;background:#EEF1F7;border-radius:10px;padding:4px">
+          <button role="tab" aria-selected="{{tabIsMe}}" onClick="{{showMe}}" style="height:40px;padding:0 18px;border:0;border-radius:8px;font-size:15px;font-weight:600;{{tabMeStyle}}">Cá nhân</button>
+          <button role="tab" aria-selected="{{tabIsTeam}}" onClick="{{showTeam}}" disabled="{{teamLocked}}" style="height:40px;padding:0 18px;border:0;border-radius:8px;font-size:15px;font-weight:600;{{tabTeamStyle}}">{{teamTabLabel}}</button>
+        </div>
+      </div>
+
+      <sc-if value="{{tabIsMe}}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:20px">
+          <div style="display:flex;flex-wrap:wrap;gap:20px">
+            <div style="flex:1 1 380px;border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <div style="font-size:15px;font-weight:600;color:var(--ink2)">Tiến độ của tôi</div>
+                <div style="font-size:32px;font-weight:700;letter-spacing:-0.5px">50%</div>
+              </div>
+              <div role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ cá nhân" style="height:12px;border-radius:6px;background:#E3E8F0;overflow:hidden"><div style="width:50%;height:100%;background:#2748D8"></div></div>
+              <div style="font-size:14px;color:var(--ink2);line-height:1.5">3 trên 6 task lá được giao đã hoàn thành. Còn khoảng 9 giờ ước lượng.</div>
+            </div>
+            <div style="flex:2 1 520px;display:flex;flex-wrap:wrap;gap:14px">
+              <div style="flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:18px">
+                <div style="font-size:14px;color:var(--mute)">Chưa thực hiện</div>
+                <div style="font-size:30px;font-weight:700;margin-top:4px">1</div>
+              </div>
+              <div style="flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--primary-soft)">
+                <div style="font-size:14px;color:#1B2F94">Đang thực hiện</div>
+                <div style="font-size:30px;font-weight:700;margin-top:4px;color:#1B2F94">2</div>
+              </div>
+              <div style="flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--ok-bg)">
+                <div style="font-size:14px;color:var(--ok)">Hoàn thành</div>
+                <div style="font-size:30px;font-weight:700;margin-top:4px;color:var(--ok)">3</div>
+              </div>
+              <div style="flex:1 1 140px;border:1px solid var(--line);border-radius:12px;padding:18px">
+                <div style="font-size:14px;color:var(--mute)">Quá hạn</div>
+                <div style="font-size:30px;font-weight:700;margin-top:4px">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow-x:auto;border:1px solid var(--line);border-radius:12px">
+            <table style="width:100%;min-width:760px;border-collapse:collapse;font-size:14px">
+              <caption style="text-align:left;padding:14px 16px;font-size:16px;font-weight:700;border-bottom:1px solid var(--line)">Task của tôi</caption>
+              <thead>
+                <tr style="background:#F7F8FB;text-align:left;color:var(--ink2)">
+                  <th scope="col" style="padding:10px 16px;font-weight:600">Công việc</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600">Trạng thái</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600">Hạn chót</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600">Cảnh báo</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600;text-align:right">Minh chứng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{myTasks}}" as="t" hint-placeholder-count="6">
+                  <tr style="border-top:1px solid var(--line)">
+                    <td style="padding:12px 16px"><a href="TaskDetail.dc.html" style="font-weight:600;color:var(--ink)">{{t.name}}</a><div style="font-size:13px;color:var(--mute);margin-top:2px">{{t.code}}</div></td>
+                    <td style="padding:12px 16px"><span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;{{t.stStyle}}">{{t.status}}</span></td>
+                    <td style="padding:12px 16px;color:var(--ink2)">{{t.due}}</td>
+                    <td style="padding:12px 16px"><span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;{{t.dlStyle}}">{{t.dl}}</span></td>
+                    <td style="padding:12px 16px;text-align:right;color:var(--ink2)">{{t.ev}}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{tabIsTeam}}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px">
+            <div style="flex:1 1 320px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between"><div style="font-size:15px;font-weight:600;color:var(--ink2)">Tiến độ chung của nhóm</div><div style="font-size:28px;font-weight:700">54%</div></div>
+              <div role="progressbar" aria-valuenow="54" aria-valuemin="0" aria-valuemax="100" aria-label="Tiến độ nhóm" style="height:12px;border-radius:6px;background:#E3E8F0;overflow:hidden"><div style="width:54%;height:100%;background:#2748D8"></div></div>
+              <div style="font-size:14px;color:var(--ink2)">13 trên 24 task lá hợp lệ đã hoàn thành.</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:14px;color:var(--ink2)">Sắp xếp</span>
+              <button aria-pressed="{{sortIsProgress}}" onClick="{{sortProgress}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{sortProgressStyle}}">Theo tiến độ</button>
+              <button aria-pressed="{{sortIsName}}" onClick="{{sortName}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{sortNameStyle}}">Theo tên</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;border:1px solid var(--line);border-radius:12px">
+            <table style="width:100%;min-width:900px;border-collapse:collapse;font-size:14px">
+              <caption style="position:absolute;left:-9999px">Tiến độ từng nhân sự</caption>
+              <thead>
+                <tr style="background:#F7F8FB;text-align:left;color:var(--ink2)">
+                  <th scope="col" style="padding:10px 16px;font-weight:600">Thành viên</th>
+                  <th scope="col" style="padding:10px 8px;font-weight:600;text-align:right">Task lá</th>
+                  <th scope="col" style="padding:10px 8px;font-weight:600;text-align:right">Chưa</th>
+                  <th scope="col" style="padding:10px 8px;font-weight:600;text-align:right">Đang</th>
+                  <th scope="col" style="padding:10px 8px;font-weight:600;text-align:right">Xong</th>
+                  <th scope="col" style="padding:10px 8px;font-weight:600;text-align:right">Trễ</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600;width:200px">% hoàn thành</th>
+                  <th scope="col" style="padding:10px 16px;font-weight:600;text-align:right">Giờ rảnh còn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{team}}" as="m" hint-placeholder-count="6">
+                  <tr style="border-top:1px solid var(--line);background:{{m.rowBg}}">
+                    <td style="padding:8px 16px">
+                      <button onClick="{{m.pick}}" aria-expanded="{{m.open}}" style="display:flex;align-items:center;gap:10px;min-height:44px;border:0;background:none;padding:0;text-align:left;color:var(--ink)">
+                        <span style="flex:none;width:32px;height:32px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{m.init}}</span>
+                        <span><span style="display:block;font-weight:600;font-size:14px">{{m.name}}</span><span style="display:block;font-size:12px;color:var(--mute)">{{m.role}} · bấm để xem task</span></span>
+                      </button>
+                    </td>
+                    <td style="padding:8px;text-align:right">{{m.tot}}</td>
+                    <td style="padding:8px;text-align:right">{{m.todo}}</td>
+                    <td style="padding:8px;text-align:right">{{m.doing}}</td>
+                    <td style="padding:8px;text-align:right">{{m.done}}</td>
+                    <td style="padding:8px;text-align:right;font-weight:600;color:{{m.lateColor}}">{{m.late}}</td>
+                    <td style="padding:8px 16px">
+                      <div style="display:flex;align-items:center;gap:10px">
+                        <div style="flex:1;height:8px;border-radius:4px;background:#E3E8F0;overflow:hidden"><div style="width:{{m.pct}}%;height:100%;background:#2748D8"></div></div>
+                        <span style="min-width:64px;text-align:right;font-weight:600">{{m.pctLabel}}</span>
+                      </div>
+                    </td>
+                    <td style="padding:8px 16px;text-align:right;font-weight:600;color:{{m.freeColor}}">{{m.freeLabel}}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <sc-if value="{{hasDrill}}" hint-placeholder-val="{{ false }}">
+            <div style="border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:#FAFBFD;display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:16px;font-weight:700">Task đang mở của {{drillName}}</div>
+              <sc-for list="{{drillTasks}}" as="d" hint-placeholder-count="3">
+                <div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:14px">
+                  <span style="flex:1 1 280px;font-weight:600">{{d.name}}</span>
+                  <span style="color:var(--ink2)">{{d.status}}</span>
+                  <span style="padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;{{d.style}}">{{d.due}}</span>
+                </div>
+              </sc-for>
+              <sc-if value="{{drillEmpty}}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:14px;color:var(--mute)">Chưa có task nào được giao. Mức tải chưa tính được vì thành viên chưa khai báo giờ rảnh.</div>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+    </section>
+
+    <!-- CUỐI: THỐNG KÊ & BÁO CÁO -->
+    <section aria-labelledby="st-h" style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+        <h2 id="st-h" style="margin:0;font-size:20px;font-weight:700">Thống kê và báo cáo</h2>
+        <div style="font-size:14px;color:var(--mute)">Kỳ: 14/09/2026 – 26/10/2026 · chỉ Trưởng nhóm xem được</div>
+      </div>
+
+      <sc-if value="{{statsLocked}}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:14px;align-items:flex-start;border:1px dashed var(--line-strong);border-radius:12px;padding:20px;background:#FAFBFD">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          <div style="font-size:15px;color:var(--ink2);line-height:1.6">Thống kê toàn nhóm và xuất báo cáo chỉ dành cho Trưởng nhóm. Bạn xem tiến độ của mình ở thẻ Cá nhân phía trên.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{statsOpen}}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+            <span style="font-size:14px;font-weight:600;color:var(--ink2)">Thành viên</span>
+            <sc-for list="{{chips}}" as="c" hint-placeholder-count="7">
+              <button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:40px;padding:0 14px;border-radius:999px;font-size:14px;font-weight:600;{{c.style}}">{{c.label}}</button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:14px">
+            <div style="flex:1 1 200px;border:1px solid var(--line);border-radius:12px;padding:18px"><div style="font-size:14px;color:var(--mute)">Tổng task lá</div><div style="font-size:30px;font-weight:700;margin-top:4px">{{kTot}}</div></div>
+            <div style="flex:1 1 200px;border:1px solid var(--line);border-radius:12px;padding:18px"><div style="font-size:14px;color:var(--mute)">% hoàn thành</div><div style="font-size:30px;font-weight:700;margin-top:4px">{{kPct}}</div></div>
+            <div style="flex:1 1 200px;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--ok-bg)"><div style="font-size:14px;color:var(--ok)">Hoàn thành đúng hạn</div><div style="font-size:30px;font-weight:700;margin-top:4px;color:var(--ok)">{{kOn}}</div></div>
+            <div style="flex:1 1 200px;border:1px solid var(--line);border-radius:12px;padding:18px;background:var(--bad-bg)"><div style="font-size:14px;color:var(--bad)">Hoàn thành trễ hạn</div><div style="font-size:30px;font-weight:700;margin-top:4px;color:var(--bad)">{{kLate}}</div></div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:20px">
+            <div style="flex:2 1 520px;border:1px solid var(--line);border-radius:12px;padding:20px">
+              <div style="font-size:16px;font-weight:700;margin-bottom:16px">% hoàn thành theo thành viên</div>
+              <div style="display:flex;align-items:flex-end;gap:16px;height:220px;border-bottom:1px solid var(--line-strong);padding:0 8px">
+                <sc-for list="{{bars}}" as="b" hint-placeholder-count="6">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px">
+                    <div style="font-size:13px;font-weight:600">{{b.label}}</div>
+                    <div style="width:100%;max-width:56px;border-radius:6px 6px 0 0;height:{{b.h}}px;{{b.style}}"></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:16px;padding:8px 8px 0">
+                <sc-for list="{{bars}}" as="b" hint-placeholder-count="6">
+                  <div style="flex:1;text-align:center;font-size:13px;color:var(--ink2);line-height:1.3">{{b.name}}</div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="flex:1 1 320px;border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px">
+              <div style="font-size:16px;font-weight:700">Trạng thái task lá</div>
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:20px">
+                <div role="img" aria-label="Biểu đồ tròn trạng thái task" style="position:relative;width:150px;height:150px;border-radius:50%;background:{{donut}}">
+                  <div style="position:absolute;inset:26px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                    <div style="font-size:24px;font-weight:700">{{kPct}}</div>
+                    <div style="font-size:12px;color:var(--mute)">hoàn thành</div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;font-size:14px">
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:3px;background:#1F7A4D"></span>Hoàn thành <b>{{sDone}}</b></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:3px;background:#2748D8"></span>Đang thực hiện <b>{{sDoing}}</b></div>
+                  <div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;border-radius:3px;background:#C2C9D8"></span>Chưa thực hiện <b>{{sTodo}}</b></div>
+                </div>
+              </div>
+              <div style="font-size:13px;color:var(--mute);line-height:1.5">Task xóa mềm được tính ở chỉ số lịch sử riêng, không nằm trong biểu đồ này.</div>
+            </div>
+          </div>
+
+          <div style="border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px">
+            <div style="font-size:16px;font-weight:700">Phân bố độ ưu tiên (toàn nhóm)</div>
+            <sc-for list="{{prio}}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:14px;font-size:14px">
+                <div style="width:100px;color:var(--ink2)">{{p.name}}</div>
+                <div style="flex:1;height:12px;border-radius:6px;background:#E3E8F0;overflow:hidden"><div style="width:{{p.w}}%;height:100%;{{p.style}}"></div></div>
+                <div style="width:60px;text-align:right;font-weight:600">{{p.n}} task</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- Báo cáo -->
+          <div style="border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-wrap:wrap;gap:24px">
+            <div style="flex:1 1 380px;display:flex;flex-direction:column;gap:14px">
+              <div style="font-size:16px;font-weight:700">Báo cáo tổng kết</div>
+              <div style="font-size:14px;color:var(--ink2);line-height:1.6">Báo cáo là bản chụp bất biến của dữ liệu tại thời điểm xuất, có ghi người tạo và thời gian. Phần phương pháp tính nêu rõ mẫu số là task lá hợp lệ.</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <span style="font-size:14px;font-weight:600;color:var(--ink2)">Loại báo cáo</span>
+                <button aria-pressed="{{repAll}}" onClick="{{setRepAll}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{repAllStyle}}">Tổng quan nhóm</button>
+                <button aria-pressed="{{repMe}}" onClick="{{setRepMe}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{repMeStyle}}">Theo thành viên đã chọn</button>
+              </div>
+              <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink2)"><input type="checkbox" checked="{{incCharts}}" onChange="{{togCharts}}" style="width:18px;height:18px"> Kèm biểu đồ</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--ink2)"><input type="checkbox" checked="{{incEv}}" onChange="{{togEv}}" style="width:18px;height:18px"> Kèm tóm tắt minh chứng</label>
+              <div style="display:flex;flex-wrap:wrap;gap:10px">
+                <button onClick="{{exportPdf}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Xuất PDF</button>
+                <button onClick="{{exportDocx}}" style="height:44px;padding:0 20px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Xuất Word</button>
+              </div>
+              <sc-if value="{{hasMsg}}" hint-placeholder-val="{{ false }}">
+                <div role="status" style="background:var(--ok-bg);color:var(--ok);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.5;font-weight:500">{{msg}}</div>
+              </sc-if>
+            </div>
+            <div style="flex:1 1 380px;display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:16px;font-weight:700">Lịch sử bản xuất</div>
+              <div style="border:1px solid var(--line);border-radius:10px;overflow:hidden">
+                <sc-for list="{{history}}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);font-size:14px">
+                    <span style="font-weight:700;min-width:84px">{{r.id}}</span>
+                    <span style="flex:1 1 140px;color:var(--ink2)">{{r.type}}</span>
+                    <span style="padding:2px 8px;border-radius:6px;background:#EBEEF4;font-size:12px;font-weight:700">{{r.fmt}}</span>
+                    <span style="color:var(--mute);font-size:13px">{{r.when}} · {{r.by}}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","default":"leader","options":["leader","member"],"section":"Demo"},"$preview":{"width":1360,"height":2300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tab: 'me', sort: 'progress', drill: '', sel: 'all', repType: 'all', incCharts: true, incEv: false, msg: '',
+      history: [
+        { id: 'REP-002', type: 'Tổng quan nhóm', fmt: 'PDF', when: '19/10 21:05', by: 'Minh Anh' },
+        { id: 'REP-001', type: 'Tổng quan nhóm', fmt: 'DOCX', when: '12/10 20:40', by: 'Minh Anh' }
+      ]
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const leader = (this.props.role || 'leader') === 'leader';
+    const tab = leader ? s.tab : 'me';
+    const on = 'background:#141B2D;color:#fff;border:1px solid #141B2D';
+    const off = 'background:#fff;color:#3F4A5E;border:1px solid #8A94A8';
+    const tabOn = 'background:#FFFFFF;color:#141B2D';
+    const tabOff = 'background:transparent;color:#3F4A5E';
+
+    const st = {
+      done: 'background:#E3F5EA;color:#13693A', doing: 'background:#E8EDFD;color:#1B2F94', todo: 'background:#EBEEF4;color:#3F4A5E'
+    };
+    const dl = {
+      ok: 'background:#E3F5EA;color:#13693A', warn: 'background:#FFF1CC;color:#7A4B00', bad: 'background:#FDE5E3;color:#A3231B', done: 'background:#EBEEF4;color:#3F4A5E', none: 'background:#EBEEF4;color:#3F4A5E'
+    };
+    const mk = (code, name, status, stK, due, dlLabel, dlK, ev) => ({ code, name, status, stStyle: st[stK], due, dl: dlLabel, dlStyle: dl[dlK], ev });
+    const myTasks = [
+      mk('TASK-102 · GĐ1', 'Thu thập yêu cầu người dùng', 'Hoàn thành', 'done', '22/10', 'Hoàn tất', 'done', '2 tệp'),
+      mk('TASK-102 · GĐ2', 'Đặc tả use case', 'Hoàn thành', 'done', '24/10', 'Hoàn tất', 'done', '1 tệp'),
+      mk('TASK-109', 'Họp chốt phạm vi đồ án', 'Hoàn thành', 'done', '22/10', 'Hoàn tất', 'done', '1 tệp'),
+      mk('TASK-102 · GĐ3', 'Đặc tả yêu cầu phi chức năng', 'Đang thực hiện', 'doing', '27/10 09:00', 'Sắp hạn · còn 16 giờ', 'warn', 'Chưa nộp'),
+      mk('TASK-102 · GĐ4', 'Rà soát và phản hồi', 'Đang thực hiện', 'doing', '29/10 17:00', 'An toàn · còn 3 ngày', 'ok', 'Chưa nộp'),
+      mk('TASK-102 · GĐ5', 'Tổng hợp tài liệu đặc tả', 'Chưa thực hiện', 'todo', '31/10 17:00', 'An toàn · còn 5 ngày', 'ok', 'Chưa nộp')
+    ];
+
+    const M = [
+      { id: 'ma', name: 'Nguyễn Minh Anh', short: 'Minh Anh', init: 'MA', role: 'Trưởng nhóm', tot: 6, todo: 1, doing: 2, done: 3, late: 0, on: 3, lateDone: 0, free: 8 },
+      { id: 'qb', name: 'Trần Quốc Bảo', short: 'Quốc Bảo', init: 'QB', role: 'Thành viên', tot: 5, todo: 1, doing: 1, done: 3, late: 1, on: 2, lateDone: 1, free: 2 },
+      { id: 'th', name: 'Lê Thu Hà', short: 'Thu Hà', init: 'TH', role: 'Thành viên', tot: 4, todo: 0, doing: 1, done: 3, late: 0, on: 3, lateDone: 0, free: 12 },
+      { id: 'gh', name: 'Phạm Gia Huy', short: 'Gia Huy', init: 'GH', role: 'Thành viên', tot: 5, todo: 2, doing: 2, done: 1, late: 1, on: 0, lateDone: 1, free: -3 },
+      { id: 'kl', name: 'Võ Khánh Linh', short: 'Khánh Linh', init: 'KL', role: 'Thành viên', tot: 4, todo: 1, doing: 0, done: 3, late: 0, on: 3, lateDone: 0, free: 10 },
+      { id: 'bt', name: 'Bùi Thanh Tùng', short: 'Thanh Tùng', init: 'BT', role: 'Thành viên', tot: 0, todo: 0, doing: 0, done: 0, late: 0, on: 0, lateDone: 0, free: null }
+    ];
+    const pctOf = (m) => (m.tot ? Math.round((m.done * 100) / m.tot) : 0);
+    const sorted = M.slice().sort((a, b) => (s.sort === 'name' ? a.short.localeCompare(b.short, 'vi') : pctOf(b) - pctOf(a)));
+    const team = sorted.map((m) => ({
+      ...m,
+      pct: pctOf(m), pctLabel: m.tot ? pctOf(m) + '%' : 'Chưa có task',
+      lateColor: m.late > 0 ? '#A3231B' : '#3F4A5E',
+      freeLabel: m.free === null ? 'Thiếu dữ liệu' : m.free < 0 ? m.free + ' giờ (quá tải)' : m.free + ' giờ',
+      freeColor: m.free === null ? '#5B6678' : m.free < 0 ? '#A3231B' : m.free <= 2 ? '#7A4B00' : '#13693A',
+      rowBg: s.drill === m.id ? '#F5F7FF' : '#FFFFFF',
+      open: s.drill === m.id,
+      pick: () => this.setState({ drill: s.drill === m.id ? '' : m.id })
+    }));
+
+    const drillData = {
+      ma: [['Đặc tả yêu cầu phi chức năng', 'Đang thực hiện', 'Sắp hạn · 27/10 09:00', 'warn'], ['Rà soát và phản hồi', 'Đang thực hiện', 'An toàn · 29/10', 'ok'], ['Tổng hợp tài liệu đặc tả', 'Chưa thực hiện', 'An toàn · 31/10', 'ok']],
+      qb: [['Xây dựng API xác thực', 'Đang thực hiện', 'Quá hạn · 25/10 23:59', 'bad'], ['Viết API hồ sơ người dùng', 'Chưa thực hiện', 'An toàn · 03/11', 'ok']],
+      th: [['Soạn bộ câu hỏi khảo sát', 'Đang thực hiện', 'An toàn · 29/10', 'ok']],
+      gh: [['Cài đặt CI cho repo', 'Đang thực hiện', 'Quá hạn · 24/10 18:00', 'bad'], ['Chuẩn bị dữ liệu mẫu', 'Đang thực hiện', 'Sắp hạn · 26/10 23:00', 'warn'], ['Seed dữ liệu kiểm thử', 'Chưa thực hiện', 'An toàn · 02/11', 'ok'], ['Viết script sao lưu', 'Chưa thực hiện', 'An toàn · 04/11', 'ok']],
+      kl: [['Phân tích luồng người dùng', 'Chưa thực hiện', 'An toàn · 28/10', 'ok']],
+      bt: []
+    };
+    const drillM = M.find((m) => m.id === s.drill);
+    const drillTasks = drillM ? drillData[drillM.id].map((d) => ({ name: d[0], status: d[1], due: d[2], style: dl[d[3]] })) : [];
+
+    // Thống kê
+    const sel = s.sel === 'all' ? null : M.find((m) => m.id === s.sel);
+    const agg = sel || { tot: 24, todo: 5, doing: 6, done: 13, on: 11, lateDone: 2 };
+    const pct = agg.tot ? Math.round((agg.done * 100) / agg.tot) : 0;
+    const chips = [{ id: 'all', label: 'Cả nhóm' }].concat(M.map((m) => ({ id: m.id, label: m.short }))).map((c) => ({
+      label: c.label, on: s.sel === c.id, style: s.sel === c.id ? on : off, pick: () => this.setState({ sel: c.id })
+    }));
+    const bars = M.map((m) => ({
+      name: m.short, label: m.tot ? pctOf(m) + '%' : '—',
+      h: m.tot ? Math.max(6, Math.round(pctOf(m) * 1.5)) : 4,
+      style: s.sel === 'all' || s.sel === m.id ? 'background:#2748D8' : 'background:#B7C3F2'
+    }));
+    const dDone = agg.tot ? (agg.done / agg.tot) * 100 : 0;
+    const dDoing = agg.tot ? (agg.doing / agg.tot) * 100 : 0;
+    const donut = agg.tot
+      ? 'conic-gradient(#1F7A4D 0 ' + dDone + '%, #2748D8 ' + dDone + '% ' + (dDone + dDoing) + '%, #C2C9D8 ' + (dDone + dDoing) + '% 100%)'
+      : '#E3E8F0';
+    const prio = [
+      { name: 'Cao', n: 9, w: 100, style: 'background:#A3231B' },
+      { name: 'Trung bình', n: 9, w: 100, style: 'background:#B7791F' },
+      { name: 'Thấp', n: 6, w: 67, style: 'background:#5B6678' }
+    ];
+
+    const doExport = (fmt) => {
+      const n = String(s.history.length + 1).padStart(3, '0');
+      const label = s.repType === 'all' ? 'Tổng quan nhóm' : 'Thành viên: ' + (sel ? sel.short : 'Cả nhóm');
+      const rec = { id: 'REP-' + n, type: label, fmt, when: '26/10 16:3' + (s.history.length % 10), by: 'Minh Anh' };
+      this.setState({ history: [rec, ...s.history], msg: 'Đã tạo ' + rec.id + ' (' + fmt + '). Bản chụp được lưu bất biến và ghi nhật ký REPORT_FINAL_EXPORT.' });
+    };
+
+    return {
+      roleLabel: leader ? 'Trưởng nhóm' : 'Thành viên',
+      tabIsMe: tab === 'me', tabIsTeam: tab === 'team',
+      tabMeStyle: tab === 'me' ? tabOn : tabOff, tabTeamStyle: tab === 'team' ? tabOn : tabOff,
+      showMe: () => this.setState({ tab: 'me' }), showTeam: () => this.setState({ tab: 'team' }),
+      teamLocked: !leader, teamTabLabel: leader ? 'Nhân sự trong nhóm' : 'Nhân sự (chỉ Trưởng nhóm)',
+      myTasks, team,
+      sortIsProgress: s.sort === 'progress', sortIsName: s.sort === 'name',
+      sortProgressStyle: s.sort === 'progress' ? on : off, sortNameStyle: s.sort === 'name' ? on : off,
+      sortProgress: () => this.setState({ sort: 'progress' }), sortName: () => this.setState({ sort: 'name' }),
+      hasDrill: !!drillM, drillName: drillM ? drillM.name : '', drillTasks, drillEmpty: !!drillM && drillTasks.length === 0,
+
+      statsLocked: !leader, statsOpen: leader,
+      chips, bars, donut, prio,
+      kTot: agg.tot || 'Chưa có task', kPct: agg.tot ? pct + '%' : '—', kOn: agg.on, kLate: agg.lateDone,
+      sDone: agg.done, sDoing: agg.doing, sTodo: agg.todo,
+
+      repAll: s.repType === 'all', repMe: s.repType === 'me',
+      repAllStyle: s.repType === 'all' ? on : off, repMeStyle: s.repType === 'me' ? on : off,
+      setRepAll: () => this.setState({ repType: 'all' }), setRepMe: () => this.setState({ repType: 'me' }),
+      incCharts: s.incCharts, incEv: s.incEv,
+      togCharts: () => this.setState({ incCharts: !s.incCharts }), togEv: () => this.setState({ incEv: !s.incEv }),
+      exportPdf: () => doExport('PDF'), exportDocx: () => doExport('DOCX'),
+      hasMsg: !!s.msg, msg: s.msg, history: s.history
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Công việc của nhóm</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+button:disabled{cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="tasks" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1280px;margin:0 auto;padding:28px 32px 64px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px">
+      <div>
+        <h1 style="margin:0 0 6px;font-size:28px;font-weight:700;letter-spacing:-0.4px">Công việc</h1>
+        <div style="font-size:15px;color:var(--mute)">Đồ án Phát triển ứng dụng web · {{roleLabel}}</div>
+      </div>
+      <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{openCreate}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">+ Tạo task</button>
+      </sc-if>
+    </div>
+
+    <!-- Tìm kiếm và lọc: đặt trên cùng -->
+    <section aria-label="Tìm kiếm và bộ lọc" style="background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+        <div style="flex:1 1 320px;position:relative">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position:absolute;left:14px;top:13px"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <label for="q" style="position:absolute;left:-9999px">Tìm theo tên hoặc mã task</label>
+          <input id="q" type="search" placeholder="Tìm theo tên hoặc mã task" value="{{q}}" onInput="{{iQ}}" style="width:100%;height:44px;box-sizing:border-box;border:1px solid var(--line-strong);border-radius:10px;padding:0 14px 0 42px;font:inherit;font-size:15px;background:#fff;color:var(--ink)">
+        </div>
+        <button aria-pressed="{{mine}}" onClick="{{togMine}}" style="height:44px;padding:0 16px;border-radius:10px;font-size:14px;font-weight:600;{{mineStyle}}">Chỉ task của tôi</button>
+        <button onClick="{{clearAll}}" style="height:44px;padding:0 14px;border:0;background:none;font-size:14px;font-weight:600;color:#2748D8">Xóa bộ lọc</button>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px 28px">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:var(--ink2);min-width:64px">Trạng thái</span>
+          <sc-for list="{{chSt}}" as="c" hint-placeholder-count="4"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:36px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:var(--ink2);min-width:64px">Ưu tiên</span>
+          <sc-for list="{{chPr}}" as="c" hint-placeholder-count="4"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:36px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:var(--ink2);min-width:64px">Loại</span>
+          <sc-for list="{{chTy}}" as="c" hint-placeholder-count="3"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:36px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px"><span style="font-size:13px;font-weight:600;color:var(--ink2);min-width:64px">Hạn chót</span>
+          <sc-for list="{{chDl}}" as="c" hint-placeholder-count="4"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:36px;padding:0 12px;border-radius:999px;font-size:13px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+        </div>
+      </div>
+    </section>
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <div style="font-size:14px;color:var(--ink2)" aria-live="polite">{{count}} task · sắp xếp theo ưu tiên (Cao → Thấp), cùng mức thì hạn gần nhất trước</div>
+      <div style="display:flex;gap:4px;background:#E6EAF2;border-radius:10px;padding:4px">
+        <button aria-pressed="{{isTable}}" onClick="{{setTable}}" style="height:38px;padding:0 16px;border:0;border-radius:8px;font-size:14px;font-weight:600;{{tableStyle}}">Bảng</button>
+        <button aria-pressed="{{isKanban}}" onClick="{{setKanban}}" style="height:38px;padding:0 16px;border:0;border-radius:8px;font-size:14px;font-weight:600;{{kanbanStyle}}">Kanban</button>
+      </div>
+    </div>
+
+    <sc-if value="{{isEmpty}}" hint-placeholder-val="{{ false }}">
+      <div style="background:var(--surface);border:1px dashed var(--line-strong);border-radius:14px;padding:40px;text-align:center">
+        <div style="font-size:17px;font-weight:700;margin-bottom:6px">Không có task phù hợp</div>
+        <div style="font-size:14px;color:var(--mute)">Đây không phải lỗi hệ thống. Hãy nới bộ lọc hoặc xóa bộ lọc để xem lại toàn bộ task.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showTable}}" hint-placeholder-val="{{ true }}">
+      <div style="background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto">
+        <table style="width:100%;min-width:1080px;border-collapse:collapse;font-size:14px">
+          <caption style="position:absolute;left:-9999px">Danh sách task</caption>
+          <thead>
+            <tr style="background:#F7F8FB;text-align:left;color:var(--ink2)">
+              <th scope="col" style="padding:12px 16px;font-weight:600">Task</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Ưu tiên</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Trạng thái</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Người nhận</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600">Hạn chót</th>
+              <th scope="col" style="padding:12px 8px;font-weight:600;width:130px">Tiến độ</th>
+              <th scope="col" style="padding:12px 16px;font-weight:600;text-align:right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{rows}}" as="t" hint-placeholder-count="8">
+              <tr style="border-top:1px solid var(--line)">
+                <td style="padding:12px 16px">
+                  <a href="TaskDetail.dc.html" style="font-weight:600;font-size:15px;color:var(--ink)">{{t.name}}</a>
+                  <div style="font-size:13px;color:var(--mute);margin-top:2px">{{t.code}} · {{t.typeLabel}}</div>
+                </td>
+                <td style="padding:12px 8px"><span style="padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;{{t.prStyle}}">{{t.prio}}</span></td>
+                <td style="padding:12px 8px"><span style="padding:3px 10px;border-radius:999px;font-size:13px;font-weight:600;{{t.stStyle}}">{{t.status}}</span></td>
+                <td style="padding:12px 8px;color:var(--ink2)">{{t.assignee}}</td>
+                <td style="padding:12px 8px">
+                  <div style="color:var(--ink2);margin-bottom:4px">{{t.dueText}}</div>
+                  <span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;{{t.dlStyle}}">{{t.dlLabel}}</span>
+                </td>
+                <td style="padding:12px 8px">
+                  <div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:8px;border-radius:4px;background:#E3E8F0;overflow:hidden"><div style="width:{{t.pct}}%;height:100%;background:#2748D8"></div></div><span style="font-weight:600;font-size:13px;min-width:34px;text-align:right">{{t.pct}}%</span></div>
+                </td>
+                <td style="padding:12px 16px;text-align:right;white-space:nowrap">
+                  <sc-if value="{{t.showActions}}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{t.edit}}" disabled="{{t.locked}}" title="{{t.lockTip}}" style="height:40px;padding:0 12px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:14px;font-weight:600;opacity:{{t.btnOpacity}}">Sửa</button>
+                    <button onClick="{{t.del}}" disabled="{{t.locked}}" title="{{t.lockTip}}" style="height:40px;padding:0 12px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:#A3231B;font-size:14px;font-weight:600;opacity:{{t.btnOpacity}}">Xóa</button>
+                  </sc-if>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--line);font-size:13px;color:var(--mute);background:#FAFBFD">Sửa và Xóa chỉ khả dụng khi task còn Chưa thực hiện. Task đã bắt đầu chỉ cập nhật tiến độ, minh chứng và bình luận.</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{showKanban}}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+        <sc-for list="{{cols}}" as="col" hint-placeholder-count="3">
+          <section style="flex:1 1 320px;background:#EAEEF5;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px">
+            <h2 style="margin:0;padding:2px 4px 6px;font-size:15px;font-weight:700;display:flex;justify-content:space-between"><span>{{col.title}}</span><span style="color:var(--ink2)">{{col.n}}</span></h2>
+            <sc-for list="{{col.cards}}" as="k" hint-placeholder-count="3">
+              <article style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px">
+                <a href="TaskDetail.dc.html" style="font-weight:600;font-size:15px;line-height:1.4;color:var(--ink)">{{k.name}}</a>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+                  <span style="padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;{{k.prStyle}}">{{k.prio}}</span>
+                  <span style="padding:2px 8px;border-radius:999px;font-size:12px;font-weight:700;{{k.dlStyle}}">{{k.dlLabel}}</span>
+                </div>
+                <div style="font-size:13px;color:var(--ink2)">{{k.code}} · {{k.assignee}}</div>
+              </article>
+            </sc-for>
+          </section>
+        </sc-for>
+      </div>
+    </sc-if>
+  </main>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;background:#141B2D;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.5;box-shadow:0 12px 32px rgba(20,27,45,0.3)">
+      <span>{{toast}}</span>
+      <button onClick="{{closeToast}}" style="flex:none;height:32px;padding:0 12px;border:1px solid #5A6684;border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600">Đóng</button>
+    </div>
+  </sc-if>
+
+  <!-- Modal tạo / sửa -->
+  <sc-if value="{{isForm}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;background:rgba(20,27,45,0.5);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+      <div role="dialog" aria-modal="true" aria-labelledby="tf-h" style="width:100%;max-width:640px;max-height:100%;overflow-y:auto;background:#fff;border-radius:16px;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="tf-h" style="margin:0;font-size:22px;font-weight:700">{{formTitle}}</h2>
+          <button onClick="{{closeModal}}" aria-label="Đóng" style="width:40px;height:40px;border:0;border-radius:8px;background:#EEF1F7;color:var(--ink)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="f-name" style="font-size:14px;font-weight:600">Tên task</label>
+          <input id="f-name" type="text" value="{{fName}}" onInput="{{iName}}" style="height:44px;border:1px solid {{bName}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{eName}}</div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px">
+          <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:14px;font-weight:600">Loại task</span>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{fTypeChips}}" as="c" hint-placeholder-count="2"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+            </div>
+            <div style="font-size:12px;color:var(--mute);line-height:1.5">{{typeHint}}</div>
+          </div>
+          <div style="flex:1 1 240px;display:flex;flex-direction:column;gap:8px">
+            <span style="font-size:14px;font-weight:600">Độ ưu tiên</span>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{fPrioChips}}" as="c" hint-placeholder-count="3"><button aria-pressed="{{c.on}}" onClick="{{c.pick}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{c.style}}">{{c.label}}</button></sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px">
+          <div style="flex:1 1 160px;display:flex;flex-direction:column;gap:6px">
+            <label for="f-h" style="font-size:14px;font-weight:600">Giờ dự kiến (EstimatedHours)</label>
+            <input id="f-h" type="number" min="0" step="0.5" value="{{fHours}}" onInput="{{iHours}}" style="height:44px;border:1px solid {{bHours}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+            <div role="alert" style="font-size:13px;color:var(--bad)">{{eHours}}</div>
+          </div>
+          <div style="flex:1 1 160px;display:flex;flex-direction:column;gap:6px">
+            <label for="f-start" style="font-size:14px;font-weight:600">Ngày bắt đầu (tùy chọn)</label>
+            <input id="f-start" type="date" value="{{fStart}}" onInput="{{iStart}}" style="height:44px;border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+          </div>
+          <div style="flex:1 1 200px;display:flex;flex-direction:column;gap:6px">
+            <label for="f-due" style="font-size:14px;font-weight:600">Hạn chót</label>
+            <input id="f-due" type="datetime-local" value="{{fDue}}" onInput="{{iDue}}" style="height:44px;border:1px solid {{bDue}};border-radius:8px;padding:0 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink)">
+            <div role="alert" style="font-size:13px;color:var(--bad)">{{eDue}}</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="f-crit" style="font-size:14px;font-weight:600">Tiêu chí nghiệm thu</label>
+          <textarea id="f-crit" rows="2" onInput="{{iCrit}}" style="border:1px solid {{bCrit}};border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{fCrit}}</textarea>
+          <div role="alert" style="font-size:13px;color:var(--bad)">{{eCrit}}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label for="f-desc" style="font-size:14px;font-weight:600">Mô tả (không bắt buộc)</label>
+          <textarea id="f-desc" rows="2" onInput="{{iDesc}}" style="border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{fDesc}}</textarea>
+        </div>
+        <div style="background:#F7F8FB;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--ink2);line-height:1.5">Task mới luôn ở trạng thái Chưa thực hiện và chưa giao cho ai. Phân công làm ở bước sau, sau khi xem mức tải.</div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button onClick="{{closeModal}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Hủy</button>
+          <button onClick="{{saveForm}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">{{saveLabel}}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Modal xóa -->
+  <sc-if value="{{isDelete}}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;background:rgba(20,27,45,0.5);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box">
+      <div role="alertdialog" aria-modal="true" aria-labelledby="dl-h" style="width:100%;max-width:460px;background:#fff;border-radius:16px;padding:28px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px">
+        <h2 id="dl-h" style="margin:0;font-size:22px;font-weight:700">Xóa task này?</h2>
+        <div style="font-size:15px;line-height:1.6;color:var(--ink2)">Bạn sắp xóa mềm <b>{{delName}}</b> cùng {{delSubs}} task con. Task bị ẩn khỏi danh sách nhưng lịch sử và nhật ký vẫn được giữ.</div>
+        <div style="display:flex;justify-content:flex-end;gap:10px">
+          <button onClick="{{closeModal}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600">Giữ lại</button>
+          <button onClick="{{confirmDelete}}" style="height:44px;padding:0 20px;border:0;border-radius:10px;background:#A3231B;color:#fff;font-size:15px;font-weight:600">Xóa task</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","default":"leader","options":["leader","member"],"section":"Demo"},"$preview":{"width":1360,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      q: '', fSt: 'all', fPr: 'all', fTy: 'all', fDl: 'all', mine: false, view: 'table',
+      modal: 'none', editId: '', delId: '', toast: '', tried: false,
+      form: { name: '', type: 'SIMPLE', prio: 'Trung bình', hours: '', start: '', due: '', crit: '', desc: '' },
+      tasks: [
+        { id: 'TASK-101', name: 'Thiết kế sơ đồ ERD', type: 'SIMPLE', prio: 'Cao', status: 'Hoàn thành', assignee: 'Lê Thu Hà', due: '2026-10-20T17:00', pct: 100, subs: 0, hours: 6, mine: false, crit: 'ERD đủ thực thể và quan hệ, được nhóm thông qua.', desc: '' },
+        { id: 'TASK-102', name: 'Viết đặc tả yêu cầu chức năng', type: 'MULTISTAGE', prio: 'Cao', status: 'Đang thực hiện', assignee: 'Nhiều người (3)', due: '2026-10-27T09:00', pct: 33, subs: 6, hours: 20, mine: true, crit: 'Tài liệu đặc tả đủ các use case chính.', desc: '' },
+        { id: 'TASK-103', name: 'Xây dựng API xác thực', type: 'MULTISTAGE', prio: 'Cao', status: 'Đang thực hiện', assignee: 'Nhiều người (2)', due: '2026-10-25T23:59', pct: 20, subs: 5, hours: 18, mine: false, crit: 'API đăng ký, đăng nhập, quên mật khẩu chạy được.', desc: '' },
+        { id: 'TASK-104', name: 'Thiết kế giao diện Dashboard', type: 'MULTISTAGE', prio: 'Cao', status: 'Chưa thực hiện', assignee: 'Khánh Linh (1 giai đoạn)', due: '2026-11-02T17:00', pct: 0, subs: 4, hours: 24, mine: false, crit: 'Có mockup và bản HTML/CSS bàn giao.', desc: '' },
+        { id: 'TASK-105', name: 'Chuẩn bị dữ liệu mẫu', type: 'SIMPLE', prio: 'Trung bình', status: 'Đang thực hiện', assignee: 'Phạm Gia Huy', due: '2026-10-26T23:00', pct: 0, subs: 0, hours: 4, mine: false, crit: 'Bộ dữ liệu mẫu nạp được vào CSDL.', desc: '' },
+        { id: 'TASK-106', name: 'Kiểm thử chức năng đăng nhập', type: 'SIMPLE', prio: 'Trung bình', status: 'Chưa thực hiện', assignee: 'Chưa giao', due: '2026-11-05T17:00', pct: 0, subs: 0, hours: 5, mine: false, crit: 'Có bảng ca kiểm thử và kết quả.', desc: '' },
+        { id: 'TASK-107', name: 'Viết báo cáo chương 1', type: 'SIMPLE', prio: 'Thấp', status: 'Chưa thực hiện', assignee: 'Lê Thu Hà', due: '2026-11-08T17:00', pct: 0, subs: 0, hours: 6, mine: false, crit: 'Chương 1 đủ mục tiêu và phạm vi.', desc: '' },
+        { id: 'TASK-108', name: 'Cài đặt CI cho repo', type: 'SIMPLE', prio: 'Thấp', status: 'Đang thực hiện', assignee: 'Phạm Gia Huy', due: '2026-10-24T18:00', pct: 0, subs: 0, hours: 3, mine: false, crit: 'Pipeline chạy xanh trên nhánh chính.', desc: '' },
+        { id: 'TASK-109', name: 'Họp chốt phạm vi đồ án', type: 'SIMPLE', prio: 'Trung bình', status: 'Hoàn thành', assignee: 'Nguyễn Minh Anh', due: '2026-10-22T17:00', pct: 100, subs: 0, hours: 2, mine: true, crit: 'Biên bản họp được cả nhóm xác nhận.', desc: '' },
+        { id: 'TASK-110', name: 'Thiết kế logo và bộ nhận diện', type: 'SIMPLE', prio: 'Thấp', status: 'Chưa thực hiện', assignee: 'Chưa giao', due: '', pct: 0, subs: 0, hours: 4, mine: false, crit: 'Có logo và bảng màu.', desc: '' }
+      ]
+    };
+  }
+  info(t) {
+    if (t.status === 'Hoàn thành') return { kind: 'done', label: 'Hoàn tất', h: 0 };
+    if (!t.due) return { kind: 'none', label: 'Không có hạn', h: 99999 };
+    const h = (new Date(t.due).getTime() - new Date('2026-10-26T16:21:00').getTime()) / 3600000;
+    if (h < 0) {
+      const a = Math.abs(h);
+      return { kind: 'bad', h, label: 'Quá hạn ' + (a < 48 ? Math.round(a) + ' giờ' : Math.floor(a / 24) + ' ngày') };
+    }
+    if (h <= 24) return { kind: 'warn', h, label: 'Sắp hạn · còn ' + Math.round(h) + ' giờ' };
+    return { kind: 'ok', h, label: 'An toàn · còn ' + Math.floor(h / 24) + ' ngày' };
+  }
+  fmtDue(iso) {
+    if (!iso) return 'Không có hạn';
+    return iso.slice(8, 10) + '/' + iso.slice(5, 7) + ' ' + iso.slice(11, 16);
+  }
+  renderVals() {
+    const s = this.state;
+    const leader = (this.props.role || 'leader') === 'leader';
+    const on = 'background:#141B2D;color:#fff;border:1px solid #141B2D';
+    const off = 'background:#fff;color:#3F4A5E;border:1px solid #8A94A8';
+    const segOn = 'background:#FFFFFF;color:#141B2D';
+    const segOff = 'background:transparent;color:#3F4A5E';
+    const mkChips = (opts, key) => opts.map(([id, label]) => ({ label, on: s[key] === id, style: s[key] === id ? on : off, pick: () => this.setState({ [key]: id }) }));
+    const stStyle = { 'Hoàn thành': 'background:#E3F5EA;color:#13693A', 'Đang thực hiện': 'background:#E8EDFD;color:#1B2F94', 'Chưa thực hiện': 'background:#EBEEF4;color:#3F4A5E' };
+    const prStyle = { 'Cao': 'background:#141B2D;color:#fff', 'Trung bình': 'background:#E8EDFD;color:#1B2F94', 'Thấp': 'background:#EBEEF4;color:#3F4A5E' };
+    const dlStyle = { ok: 'background:#E3F5EA;color:#13693A', warn: 'background:#FFF1CC;color:#7A4B00', bad: 'background:#FDE5E3;color:#A3231B', done: 'background:#EBEEF4;color:#3F4A5E', none: 'background:#EBEEF4;color:#3F4A5E' };
+    const rank = { 'Cao': 0, 'Trung bình': 1, 'Thấp': 2 };
+
+    const q = s.q.trim().toLowerCase();
+    const list = s.tasks
+      .map((t) => ({ t, i: this.info(t) }))
+      .filter(({ t, i }) =>
+        (s.fSt === 'all' || t.status === s.fSt) && (s.fPr === 'all' || t.prio === s.fPr) && (s.fTy === 'all' || t.type === s.fTy) &&
+        (s.fDl === 'all' || i.kind === s.fDl) && (!s.mine || t.mine) && (!q || (t.name + ' ' + t.id).toLowerCase().includes(q)))
+      .sort((a, b) => rank[a.t.prio] - rank[b.t.prio] || a.i.h - b.i.h);
+
+    const rows = list.map(({ t, i }) => {
+      const locked = t.status !== 'Chưa thực hiện';
+      return {
+        code: t.id, name: t.name, prio: t.prio, status: t.status, assignee: t.assignee, pct: t.pct,
+        typeLabel: t.type === 'SIMPLE' ? 'Đơn giản' : 'Nhiều giai đoạn · ' + t.subs + ' task con',
+        prStyle: prStyle[t.prio], stStyle: stStyle[t.status],
+        dueText: this.fmtDue(t.due), dlLabel: i.label, dlStyle: dlStyle[i.kind],
+        showActions: leader, locked, btnOpacity: locked ? '0.45' : '1',
+        lockTip: locked ? 'Task đã bắt đầu hoặc hoàn thành: không được sửa hay xóa' : '',
+        edit: () => this.setState({ modal: 'edit', editId: t.id, tried: false, form: { name: t.name, type: t.type, prio: t.prio, hours: String(t.hours), start: '', due: t.due, crit: t.crit, desc: t.desc } }),
+        del: () => this.setState({ modal: 'delete', delId: t.id })
+      };
+    });
+    const colDef = [['Chưa thực hiện', 'Chưa thực hiện'], ['Đang thực hiện', 'Đang thực hiện'], ['Hoàn thành', 'Hoàn thành']];
+    const cols = colDef.map(([k, title]) => {
+      const cards = list.filter(({ t }) => t.status === k).map(({ t, i }) => ({ code: t.id, name: t.name, prio: t.prio, assignee: t.assignee, prStyle: prStyle[t.prio], dlLabel: i.label, dlStyle: dlStyle[i.kind] }));
+      return { title, n: cards.length, cards };
+    });
+
+    // Form
+    const f = s.form;
+    const hv = parseFloat(f.hours);
+    const nowIso = '2026-10-26T16:21';
+    const eName = s.tried && (!f.name.trim() || f.name.length > 200) ? 'Nhập tên task (1–200 ký tự).' : '';
+    const eHours = s.tried && !(hv > 0) ? 'Giờ dự kiến phải lớn hơn 0 để tính cân bằng tải.' : '';
+    const eDue = s.tried && f.due && f.due <= nowIso ? 'Hạn chót phải sau thời điểm hiện tại.' : (s.tried && f.due && f.start && f.due.slice(0, 10) < f.start ? 'Hạn chót phải sau ngày bắt đầu.' : '');
+    const eCrit = s.tried && !f.crit.trim() ? 'Nhập tiêu chí nghiệm thu.' : '';
+    const setF = (k) => (e) => this.setState({ form: { ...s.form, [k]: e.target.value } });
+    const bd = (m) => (m ? 'var(--bad)' : 'var(--line-strong)');
+    const isEdit = s.modal === 'edit';
+    const delT = s.tasks.find((t) => t.id === s.delId);
+
+    return {
+      roleLabel: leader ? 'Trưởng nhóm' : 'Thành viên', isLeader: leader,
+      q: s.q, iQ: (e) => this.setState({ q: e.target.value }),
+      mine: s.mine, mineStyle: s.mine ? on : off, togMine: () => this.setState({ mine: !s.mine }),
+      clearAll: () => this.setState({ q: '', fSt: 'all', fPr: 'all', fTy: 'all', fDl: 'all', mine: false }),
+      chSt: mkChips([['all', 'Tất cả'], ['Chưa thực hiện', 'Chưa thực hiện'], ['Đang thực hiện', 'Đang thực hiện'], ['Hoàn thành', 'Hoàn thành']], 'fSt'),
+      chPr: mkChips([['all', 'Tất cả'], ['Cao', 'Cao'], ['Trung bình', 'Trung bình'], ['Thấp', 'Thấp']], 'fPr'),
+      chTy: mkChips([['all', 'Tất cả'], ['SIMPLE', 'Đơn giản'], ['MULTISTAGE', 'Nhiều giai đoạn']], 'fTy'),
+      chDl: mkChips([['all', 'Tất cả'], ['ok', 'An toàn'], ['warn', 'Sắp hạn'], ['bad', 'Quá hạn']], 'fDl'),
+      count: rows.length, isEmpty: rows.length === 0,
+      isTable: s.view === 'table', isKanban: s.view === 'kanban',
+      tableStyle: s.view === 'table' ? segOn : segOff, kanbanStyle: s.view === 'kanban' ? segOn : segOff,
+      setTable: () => this.setState({ view: 'table' }), setKanban: () => this.setState({ view: 'kanban' }),
+      showTable: s.view === 'table' && rows.length > 0, showKanban: s.view === 'kanban' && rows.length > 0,
+      rows, cols,
+      hasToast: !!s.toast, toast: s.toast, closeToast: () => this.setState({ toast: '' }),
+
+      isForm: s.modal === 'create' || s.modal === 'edit', isDelete: s.modal === 'delete',
+      formTitle: isEdit ? 'Sửa task ' + s.editId : 'Tạo task mới',
+      saveLabel: isEdit ? 'Lưu thay đổi' : 'Tạo task',
+      openCreate: () => this.setState({ modal: 'create', tried: false, form: { name: '', type: 'SIMPLE', prio: 'Trung bình', hours: '', start: '', due: '', crit: '', desc: '' } }),
+      closeModal: () => this.setState({ modal: 'none' }),
+      fName: f.name, fHours: f.hours, fStart: f.start, fDue: f.due, fCrit: f.crit, fDesc: f.desc,
+      iName: setF('name'), iHours: setF('hours'), iStart: setF('start'), iDue: setF('due'), iCrit: setF('crit'), iDesc: setF('desc'),
+      eName, eHours, eDue, eCrit, bName: bd(eName), bHours: bd(eHours), bDue: bd(eDue), bCrit: bd(eCrit),
+      fTypeChips: [['SIMPLE', 'Đơn giản'], ['MULTISTAGE', 'Nhiều giai đoạn']].map(([id, label]) => ({ label, on: f.type === id, style: f.type === id ? on : off, pick: () => this.setState({ form: { ...s.form, type: id } }) })),
+      fPrioChips: ['Cao', 'Trung bình', 'Thấp'].map((id) => ({ label: id, on: f.prio === id, style: f.prio === id ? on : off, pick: () => this.setState({ form: { ...s.form, prio: id } }) })),
+      typeHint: f.type === 'SIMPLE' ? 'Cần ít nhất 1 minh chứng hoặc báo cáo trước khi đánh dấu Hoàn thành.' : 'Phải chia ít nhất 1 task con theo giai đoạn trước khi bắt đầu.',
+      saveForm: () => {
+        const bad = !f.name.trim() || f.name.length > 200 || !(hv > 0) || (f.due && f.due <= nowIso) || !f.crit.trim() || (f.due && f.start && f.due.slice(0, 10) < f.start);
+        if (bad) { this.setState({ tried: true }); return; }
+        if (isEdit) {
+          this.setState({
+            tasks: s.tasks.map((t) => (t.id === s.editId ? { ...t, name: f.name.trim(), type: f.type, prio: f.prio, hours: hv, due: f.due, crit: f.crit, desc: f.desc } : t)),
+            modal: 'none', toast: 'Đã lưu ' + s.editId + '. Thay đổi được ghi nhật ký TASK_EDIT kèm giá trị cũ và mới, người liên quan nhận thông báo.'
+          });
+        } else {
+          const id = 'TASK-' + (111 + s.tasks.filter((t) => t.id.slice(5) > '110').length);
+          const nt = { id, name: f.name.trim(), type: f.type, prio: f.prio, status: 'Chưa thực hiện', assignee: 'Chưa giao', due: f.due, pct: 0, subs: 0, hours: hv, mine: false, crit: f.crit, desc: f.desc };
+          this.setState({ tasks: [nt].concat(s.tasks), modal: 'none', toast: 'Đã tạo ' + id + ' ở trạng thái Chưa thực hiện, chưa giao ai. Bước tiếp theo: ' + (f.type === 'MULTISTAGE' ? 'chia giai đoạn rồi phân công.' : 'phân công sau khi xem mức tải.') });
+        }
+      },
+      delName: delT ? delT.name : '', delSubs: delT ? delT.subs : 0,
+      confirmDelete: () => this.setState({ tasks: s.tasks.filter((t) => t.id !== s.delId), modal: 'none', toast: 'Đã xóa mềm ' + s.delId + '. Task được ẩn khỏi danh sách, lịch sử và nhật ký vẫn còn.' })
+    };
+  }
+}
+</script>
+</body>
+</html>

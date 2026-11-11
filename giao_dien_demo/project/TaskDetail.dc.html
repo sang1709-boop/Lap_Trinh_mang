@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Chi tiết task và phân công</title>
+<script src="../support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F4F6FA;--surface:#FFFFFF;--ink:#141B2D;--ink2:#3F4A5E;--mute:#5B6678;--line:#E3E8F0;--line-strong:#8A94A8;--primary:#2748D8;--primary-soft:#E8EDFD;--ok-bg:#E3F5EA;--ok:#13693A;--warn-bg:#FFF1CC;--warn:#7A4B00;--bad-bg:#FDE5E3;--bad:#A3231B}
+a{color:inherit;text-decoration:none}
+a:hover{text-decoration:underline}
+button{font-family:inherit;cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #2748D8;outline-offset:2px}
+button:disabled{cursor:not-allowed}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--bg);font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink)">
+  <dc-import name="Header" active="tasks" hint-size="100%,120px"></dc-import>
+
+  <main style="max-width:1320px;margin:0 auto;padding:24px 32px 72px;display:flex;flex-direction:column;gap:20px;box-sizing:border-box">
+
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+      <nav aria-label="Đường dẫn" style="font-size:14px;color:var(--mute)"><a href="Tasks.dc.html" style="color:#2748D8;font-weight:600">Công việc</a> &nbsp;/&nbsp; TASK-104</nav>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600;color:var(--ink2)">Demo · xem với vai trò</span>
+        <div style="display:flex;gap:4px;background:#E6EAF2;border-radius:10px;padding:4px">
+          <button aria-pressed="{{isLeader}}" onClick="{{asLeader}}" style="height:36px;padding:0 14px;border:0;border-radius:8px;font-size:14px;font-weight:600;{{leaderStyle}}">Trưởng nhóm</button>
+          <button aria-pressed="{{isAssignee}}" onClick="{{asAssignee}}" style="height:36px;padding:0 14px;border:0;border-radius:8px;font-size:14px;font-weight:600;{{assigneeStyle}}">Người thực hiện (Khánh Linh)</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
+
+      <!-- CỘT TRÁI -->
+      <div style="flex:1 1 620px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+        <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px">
+            <div style="flex:1 1 360px;min-width:0">
+              <h1 style="margin:0 0 10px;font-size:26px;font-weight:700;letter-spacing:-0.4px;line-height:1.3">Thiết kế giao diện Dashboard</h1>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;background:#EBEEF4;color:#3F4A5E">Nhiều giai đoạn</span>
+                <span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;background:#141B2D;color:#fff">Ưu tiên Cao</span>
+                <span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;{{statusStyle}}">{{statusLabel}}</span>
+                <span style="padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;background:#E3F5EA;color:#13693A">An toàn · còn 6 ngày</span>
+              </div>
+            </div>
+            <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;align-items:flex-start">
+                <button onClick="{{doEdit}}" disabled="{{started}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:var(--ink);font-size:15px;font-weight:600;opacity:{{editOpacity}}">Sửa task</button>
+                <button onClick="{{doDelete}}" disabled="{{started}}" style="height:44px;padding:0 18px;border:1px solid var(--line-strong);border-radius:10px;background:#fff;color:#A3231B;font-size:15px;font-weight:600;opacity:{{editOpacity}}">Xóa</button>
+              </div>
+            </sc-if>
+          </div>
+
+          <ol style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 0" aria-label="Trạng thái task">
+            <sc-for list="{{steps}}" as="st" hint-placeholder-count="3">
+              <li style="flex:1 1 160px;display:flex;flex-direction:column;gap:6px">
+                <div style="height:6px;border-radius:3px;margin-right:6px;{{st.bar}}"></div>
+                <div style="font-size:13px;{{st.text}}">{{st.label}}</div>
+              </li>
+            </sc-for>
+          </ol>
+
+          <sc-if value="{{started}}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="display:flex;gap:12px;align-items:flex-start;background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.5">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+              <span>Task đã bắt đầu: thông tin gốc và cấu trúc giai đoạn bị khóa. Không thể sửa hay xóa task. Bạn vẫn giao được các giai đoạn chưa bắt đầu.</span>
+            </div>
+          </sc-if>
+
+          <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px 24px">
+            <div><dt style="font-size:13px;color:var(--mute)">Giờ dự kiến</dt><dd style="margin:2px 0 0;font-size:16px;font-weight:600">24 giờ (4 giai đoạn)</dd></div>
+            <div><dt style="font-size:13px;color:var(--mute)">Hạn chót</dt><dd style="margin:2px 0 0;font-size:16px;font-weight:600">02/11/2026 17:00</dd></div>
+            <div><dt style="font-size:13px;color:var(--mute)">Người tạo</dt><dd style="margin:2px 0 0;font-size:16px;font-weight:600">Nguyễn Minh Anh</dd></div>
+            <div style="grid-column:1 / -1"><dt style="font-size:13px;color:var(--mute)">Tiêu chí nghiệm thu</dt><dd style="margin:2px 0 0;font-size:15px;line-height:1.6">Có mockup các màn Dashboard và bản HTML/CSS bàn giao. Màn hình đặt cảnh báo hạn 3 màu và chuông ở đầu trang.</dd></div>
+          </dl>
+        </section>
+
+        <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:8px 24px 24px">
+          <div role="tablist" style="display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid var(--line);margin:0 -24px 20px;padding:0 24px">
+            <sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+              <button role="tab" aria-selected="{{t.on}}" onClick="{{t.pick}}" style="height:52px;padding:0 16px;border:0;background:none;font-size:15px;{{t.style}}">{{t.label}}</button>
+            </sc-for>
+          </div>
+
+          <!-- Công đoạn -->
+          <sc-if value="{{tabStages}}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:14px;color:var(--ink2);line-height:1.6">4 giai đoạn · tổng 24 giờ · hạn của từng giai đoạn nằm trong hạn task cha (02/11 17:00). Tiến độ task cha được tổng hợp từ các giai đoạn.</div>
+              <sc-for list="{{stages}}" as="g" hint-placeholder-count="4">
+                <article style="border:1px solid {{g.border}};border-radius:12px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;background:{{g.bg}}">
+                  <div style="flex:none;width:36px;height:36px;border-radius:50%;background:#141B2D;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center">{{g.no}}</div>
+                  <div style="flex:1 1 260px;min-width:0">
+                    <div style="font-size:16px;font-weight:600">{{g.name}}</div>
+                    <div style="font-size:13px;color:var(--ink2);margin-top:4px">{{g.hours}} giờ · hạn {{g.dueText}}</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+                      <span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;{{g.dlStyle}}">{{g.dlLabel}}</span>
+                      <span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;{{g.stStyle}}">{{g.status}}</span>
+                      <span style="padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;{{g.asnStyle}}">{{g.assigneeLabel}}</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+                    <sc-if value="{{g.canAssign}}" hint-placeholder-val="{{ true }}">
+                      <button onClick="{{g.assign}}" aria-pressed="{{g.isSel}}" style="height:40px;padding:0 14px;border-radius:8px;font-size:14px;font-weight:600;{{g.assignStyle}}">{{g.assignLabel}}</button>
+                    </sc-if>
+                    <sc-if value="{{g.canStart}}" hint-placeholder-val="{{ false }}">
+                      <button onClick="{{g.start}}" style="height:44px;padding:0 16px;border:0;border-radius:8px;background:#2748D8;color:#fff;font-size:14px;font-weight:600">Bắt đầu thực hiện</button>
+                    </sc-if>
+                    <sc-if value="{{g.isLocked}}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:12px;color:var(--mute)">Đã khóa phân công</span>
+                    </sc-if>
+                  </div>
+                </article>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <!-- Minh chứng -->
+          <sc-if value="{{tabEvidence}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:16px">
+              <sc-if value="{{evLocked}}" hint-placeholder-val="{{ true }}">
+                <div style="border:1px dashed var(--line-strong);border-radius:12px;padding:28px;text-align:center;background:#FAFBFD">
+                  <div style="font-size:16px;font-weight:700;margin-bottom:6px">Chưa nhận minh chứng</div>
+                  <div style="font-size:14px;color:var(--mute);line-height:1.6">Task đang ở trạng thái Chưa thực hiện. Người thực hiện chỉ nộp được minh chứng sau khi bắt đầu.</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{evCanUpload}}" hint-placeholder-val="{{ false }}">
+                <div style="border:1px dashed var(--line-strong);border-radius:12px;padding:20px;background:#FAFBFD;display:flex;flex-direction:column;gap:12px">
+                  <label for="ev-file" style="font-size:14px;font-weight:600">Tệp minh chứng (pdf, docx, png, jpg, zip · tối đa 20 MB)</label>
+                  <input id="ev-file" type="file" onChange="{{onFile}}" style="font:inherit;font-size:14px">
+                  <div style="font-size:13px;color:var(--ink2)">{{evFileLabel}}</div>
+                  <label for="ev-note" style="font-size:14px;font-weight:600">Báo cáo ngắn</label>
+                  <textarea id="ev-note" rows="3" onInput="{{iEvNote}}" style="border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{evNote}}</textarea>
+                  <div role="alert" style="font-size:13px;color:var(--bad)">{{evErr}}</div>
+                  <button onClick="{{submitEv}}" style="align-self:flex-start;height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Nộp minh chứng</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{evLeaderView}}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:14px;color:var(--ink2);line-height:1.6">Bạn xem được minh chứng của cả nhóm. Chỉ người được giao mới nộp được.</div>
+              </sc-if>
+              <sc-for list="{{evid}}" as="e" hint-placeholder-count="2">
+                <div style="border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
+                  <div style="font-size:15px;font-weight:600">{{e.name}}</div>
+                  <div style="font-size:13px;color:var(--mute)">{{e.meta}}</div>
+                  <div style="font-size:14px;color:var(--ink2);line-height:1.5">{{e.note}}</div>
+                </div>
+              </sc-for>
+              <div style="font-size:13px;color:var(--mute);line-height:1.5">Minh chứng là bản ghi bổ sung, không ghi đè và không xóa. Tệp được quét mã độc và lưu kèm mã băm SHA-256.</div>
+            </div>
+          </sc-if>
+
+          <!-- Bình luận -->
+          <sc-if value="{{tabComments}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="font-size:13px;color:var(--mute);line-height:1.5">Tối đa 500 ký tự mỗi bình luận, 5 bình luận mỗi phút. Thảo luận dài hãy dùng <a href="Chat.dc.html" style="color:#2748D8;font-weight:600">Chat nhóm</a>.</div>
+              <sc-for list="{{comments}}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;gap:12px">
+                  <div style="flex:none;width:36px;height:36px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.init}}</div>
+                  <div style="flex:1;min-width:0"><div style="font-size:14px"><b>{{c.name}}</b> <span style="color:var(--mute);font-size:13px">· {{c.when}}</span></div><div style="font-size:15px;line-height:1.6;margin-top:2px">{{c.text}}</div></div>
+                </div>
+              </sc-for>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <label for="cm" style="font-size:14px;font-weight:600">Viết bình luận</label>
+                <textarea id="cm" rows="3" onInput="{{iDraft}}" style="border:1px solid {{cmBorder}};border-radius:8px;padding:10px 12px;font:inherit;font-size:15px;width:100%;box-sizing:border-box;background:#fff;color:var(--ink);resize:vertical">{{draft}}</textarea>
+                <div style="display:flex;justify-content:space-between;gap:12px"><span role="alert" style="font-size:13px;color:var(--bad)">{{cmErr}}</span><span style="font-size:13px;color:var(--mute)">{{draftLen}}/500</span></div>
+              </div>
+              <button onClick="{{sendComment}}" style="align-self:flex-start;height:44px;padding:0 18px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:15px;font-weight:600">Gửi bình luận</button>
+            </div>
+          </sc-if>
+
+          <!-- Lịch sử -->
+          <sc-if value="{{tabHistory}}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{hist}}" as="h" hint-placeholder-count="4">
+                <div style="display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:14px">
+                  <span style="min-width:96px;color:var(--mute);font-size:13px">{{h.when}}</span>
+                  <span style="font-weight:700;min-width:190px">{{h.action}}</span>
+                  <span style="flex:1 1 220px;color:var(--ink2)">{{h.what}}</span>
+                  <span style="padding:2px 8px;border-radius:6px;font-size:12px;font-weight:700;{{h.style}}">{{h.result}}</span>
+                </div>
+              </sc-for>
+              <div style="font-size:13px;color:var(--mute);padding-top:12px;border-top:1px solid var(--line)">Nhật ký chỉ thêm, không sửa hoặc xóa. Thao tác thất bại cũng được ghi.</div>
+            </div>
+          </sc-if>
+        </section>
+      </div>
+
+      <!-- CỘT PHẢI: PHÂN CÔNG -->
+      <aside style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+        <sc-if value="{{isAssignee}}" hint-placeholder-val="{{ false }}">
+          <section style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:12px">
+            <h2 style="margin:0;font-size:18px;font-weight:700">Việc của bạn</h2>
+            <div style="font-size:14px;color:var(--ink2);line-height:1.6">Bạn được giao <b>GĐ1 · Phân tích luồng người dùng</b> (4 giờ, hạn 28/10 17:00). Chỉ người được giao mới đổi trạng thái theo đúng trình tự Chưa thực hiện, Đang thực hiện, Hoàn thành.</div>
+            <div style="font-size:14px;color:var(--ink2);line-height:1.6">Mở tab Công đoạn để bắt đầu, rồi nộp minh chứng ở tab Minh chứng. Bạn không có quyền giao việc.</div>
+          </section>
+        </sc-if>
+
+        <sc-if value="{{isLeader}}" hint-placeholder-val="{{ true }}">
+          <section aria-labelledby="as-h" style="background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:18px">
+            <div>
+              <h2 id="as-h" style="margin:0 0 6px;font-size:18px;font-weight:700">Phân công và cân bằng tải</h2>
+              <sc-if value="{{hasTarget}}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:14px;color:var(--ink2);line-height:1.5">Đang giao: <b>{{targetName}}</b> · {{targetHours}} giờ · hạn {{targetDue}}</div>
+              </sc-if>
+              <sc-if value="{{noTarget}}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:14px;color:var(--ink2);line-height:1.5">Chọn nút Giao việc ở một giai đoạn chưa bắt đầu để xem mức tải.</div>
+              </sc-if>
+            </div>
+
+            <sc-if value="{{hasTarget}}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+                    <div style="font-size:15px;font-weight:700">Mức tải trong tuần này</div>
+                    <a href="Profile.dc.html" style="font-size:13px;color:#2748D8;font-weight:600">Lịch rảnh của thành viên</a>
+                  </div>
+                  <div role="radiogroup" aria-label="Chọn người nhận" style="display:flex;flex-direction:column;gap:8px">
+                    <sc-for list="{{members}}" as="m" hint-placeholder-count="6">
+                      <button role="radio" aria-checked="{{m.on}}" onClick="{{m.pick}}" style="text-align:left;width:100%;border:2px solid {{m.border}};border-radius:12px;padding:12px 14px;background:{{m.bg}};color:var(--ink);display:flex;flex-direction:column;gap:8px">
+                        <span style="display:flex;align-items:center;gap:10px">
+                          <span style="flex:none;width:32px;height:32px;border-radius:50%;background:#E8EDFD;color:#1B2F94;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{m.init}}</span>
+                          <span style="flex:1;min-width:0;font-size:15px;font-weight:600">{{m.name}}</span>
+                          <span style="flex:none;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700;{{m.flagStyle}}">{{m.flag}}</span>
+                        </span>
+                        <span style="display:block;height:8px;border-radius:4px;background:#E3E8F0;overflow:hidden"><span style="display:block;width:{{m.afterW}}%;height:100%;{{m.barStyle}}"></span></span>
+                        <span style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:13px;color:var(--ink2)">
+                          <span>{{m.hoursText}}</span>
+                          <span style="font-weight:600">{{m.loadText}}</span>
+                        </span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <div>
+                  <div style="font-size:15px;font-weight:700;margin-bottom:4px">Gợi ý người phù hợp</div>
+                  <div style="font-size:13px;color:var(--mute);line-height:1.5;margin-bottom:8px">Xếp hạng theo luật: quỹ giờ còn lại và mức tải sau khi giao. Chưa có dữ liệu kỹ năng nên không xét. Gợi ý không tự giao việc.</div>
+                  <sc-for list="{{cands}}" as="c" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)">
+                      <div style="flex:none;width:28px;height:28px;border-radius:50%;background:#141B2D;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">{{c.rank}}</div>
+                      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">{{c.name}} · {{c.score}} điểm</div><div style="font-size:13px;color:var(--ink2);line-height:1.4">{{c.reason}}</div></div>
+                      <button onClick="{{c.pick}}" style="flex:none;height:40px;padding:0 12px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:var(--ink);font-size:13px;font-weight:600">Chọn</button>
+                    </div>
+                  </sc-for>
+                </div>
+
+                <sc-if value="{{hasSim}}" hint-placeholder-val="{{ false }}">
+                  <div>
+                    <div style="font-size:15px;font-weight:700;margin-bottom:8px">Mô phỏng: {{simName}}</div>
+                    <div style="display:flex;gap:12px">
+                      <div style="flex:1;border:1px solid var(--line);border-radius:12px;padding:14px">
+                        <div style="font-size:13px;font-weight:600;color:var(--mute)">Trước khi giao</div>
+                        <div style="font-size:26px;font-weight:700;margin-top:4px">{{simBefore}}</div>
+                        <div style="font-size:13px;color:var(--ink2);margin-top:4px">{{simBeforeHours}}</div>
+                      </div>
+                      <div style="flex:1;border:2px solid {{simBorder}};border-radius:12px;padding:14px;background:{{simBg}}">
+                        <div style="font-size:13px;font-weight:600;color:var(--ink2)">Sau khi giao</div>
+                        <div style="font-size:26px;font-weight:700;margin-top:4px;color:{{simColor}}">{{simAfter}}</div>
+                        <div style="font-size:13px;color:var(--ink2);margin-top:4px">{{simAfterHours}}</div>
+                      </div>
+                    </div>
+                    <div style="font-size:12px;color:var(--mute);margin-top:8px">Mô phỏng không ghi phân công thật.</div>
+                  </div>
+                </sc-if>
+
+                <sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+                  <div role="alert" style="background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.5;font-weight:500">{{err}}</div>
+                </sc-if>
+                <sc-if value="{{hasWarn}}" hint-placeholder-val="{{ false }}">
+                  <div style="background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.5;font-weight:500">{{warn}}</div>
+                </sc-if>
+
+                <button onClick="{{confirm}}" style="height:48px;border:0;border-radius:10px;background:#2748D8;color:#fff;font-size:16px;font-weight:600">Xác nhận giao việc</button>
+                <div style="font-size:12px;color:var(--mute);line-height:1.5;margin-top:-8px">Hệ thống kiểm tra lại quyền và trạng thái ngay khi xác nhận. Task vẫn ở trạng thái Chưa thực hiện sau khi giao.</div>
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+      </aside>
+    </div>
+  </main>
+
+  <sc-if value="{{hasToast}}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:60;max-width:calc(100vw - 32px);display:flex;align-items:center;gap:16px;background:#141B2D;color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;line-height:1.5;box-shadow:0 12px 32px rgba(20,27,45,0.3)">
+      <span>{{toast}}</span>
+      <button onClick="{{closeToast}}" style="flex:none;height:32px;padding:0 12px;border:1px solid #5A6684;border-radius:8px;background:transparent;color:#fff;font-size:13px;font-weight:600">Đóng</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1360,"height":2400}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewer: 'leader', tab: 'stages', started: false, sel: 's2', cand: '', err: '', warn: '', toast: '',
+      planned: { ma: 12, qb: 13, th: 6, gh: 13, kl: 6, bt: null },
+      subs: [
+        { id: 's1', no: 1, name: 'Phân tích luồng người dùng', h: 4, due: '2026-10-28T17:00', assignee: 'kl', status: 'Chưa thực hiện' },
+        { id: 's2', no: 2, name: 'Vẽ wireframe', h: 6, due: '2026-10-30T17:00', assignee: '', status: 'Chưa thực hiện' },
+        { id: 's3', no: 3, name: 'UI kit và mockup', h: 8, due: '2026-11-01T17:00', assignee: '', status: 'Chưa thực hiện' },
+        { id: 's4', no: 4, name: 'Bàn giao HTML/CSS', h: 6, due: '2026-11-02T17:00', assignee: '', status: 'Chưa thực hiện' }
+      ],
+      hist: [
+        { when: '25/10 10:07', action: 'TASK_ASSIGN', what: 'Giao GĐ2 cho Phạm Gia Huy', result: 'FAILED · OVER_CAPACITY' },
+        { when: '25/10 10:05', action: 'TASK_ASSIGN', what: 'Giao GĐ1 cho Võ Khánh Linh', result: 'SUCCESS' },
+        { when: '24/10 09:20', action: 'TASK_SUBTASK_CREATE', what: 'Chia 4 giai đoạn, tổng 24 giờ', result: 'SUCCESS' },
+        { when: '24/10 09:12', action: 'TASK_CREATE', what: 'Tạo task, trạng thái Chưa thực hiện', result: 'SUCCESS' }
+      ],
+      comments: [
+        { name: 'Nguyễn Minh Anh', init: 'MA', when: '25/10 10:10', text: 'GĐ1 cần xong trước 28/10 để Huy kịp bàn giao dữ liệu mẫu.' },
+        { name: 'Võ Khánh Linh', init: 'KL', when: '25/10 11:32', text: 'Em nhận GĐ1. Em cần thêm danh sách chỉ số để vẽ bảng số liệu.' }
+      ],
+      draft: '', cmErr: '', evid: [], evNote: '', evFile: null, evErr: ''
+    };
+  }
+  members() {
+    return [
+      { id: 'ma', name: 'Nguyễn Minh Anh', init: 'MA', free: 20 },
+      { id: 'qb', name: 'Trần Quốc Bảo', init: 'QB', free: 15 },
+      { id: 'th', name: 'Lê Thu Hà', init: 'TH', free: 18 },
+      { id: 'gh', name: 'Phạm Gia Huy', init: 'GH', free: 10 },
+      { id: 'kl', name: 'Võ Khánh Linh', init: 'KL', free: 16 },
+      { id: 'bt', name: 'Bùi Thanh Tùng', init: 'BT', free: null }
+    ];
+  }
+  info(iso) {
+    const h = (new Date(iso).getTime() - new Date('2026-10-26T16:21:00').getTime()) / 3600000;
+    if (h < 0) return { kind: 'bad', label: 'Quá hạn' };
+    if (h <= 24) return { kind: 'warn', label: 'Sắp hạn · còn ' + Math.round(h) + ' giờ' };
+    return { kind: 'ok', label: 'An toàn · còn ' + Math.floor(h / 24) + ' ngày' };
+  }
+  fmt(iso) { return iso.slice(8, 10) + '/' + iso.slice(5, 7) + ' ' + iso.slice(11, 16); }
+  addHist(action, what, result) {
+    const n = this.state.hist.length;
+    return [{ when: '26/10 16:' + String(22 + (n % 30)), action, what, result }].concat(this.state.hist);
+  }
+  renderVals() {
+    const s = this.state;
+    const leader = s.viewer === 'leader';
+    const mem = this.members();
+    const nameOf = (id) => { const m = mem.find((x) => x.id === id); return m ? m.name : 'Chưa giao'; };
+    const on = 'background:#141B2D;color:#fff;border:1px solid #141B2D';
+    const off = 'background:#fff;color:#141B2D;border:1px solid #8A94A8';
+    const segOn = 'background:#FFFFFF;color:#141B2D';
+    const segOff = 'background:transparent;color:#3F4A5E';
+    const dl = { ok: 'background:#E3F5EA;color:#13693A', warn: 'background:#FFF1CC;color:#7A4B00', bad: 'background:#FDE5E3;color:#A3231B' };
+    const st = { 'Chưa thực hiện': 'background:#EBEEF4;color:#3F4A5E', 'Đang thực hiện': 'background:#E8EDFD;color:#1B2F94', 'Hoàn thành': 'background:#E3F5EA;color:#13693A' };
+    const T = s.subs.find((x) => x.id === s.sel && x.status === 'Chưa thực hiện');
+    const H = T ? T.h : 0;
+
+    // Bước trạng thái
+    const stepNames = ['Chưa thực hiện', 'Đang thực hiện', 'Hoàn thành'];
+    const cur = s.started ? 1 : 0;
+    const steps = stepNames.map((label, i) => ({
+      label: (i + 1) + '. ' + label,
+      bar: i <= cur ? 'background:#2748D8' : 'background:#DDE2EC',
+      text: i === cur ? 'color:#141B2D;font-weight:700' : 'color:#5B6678'
+    }));
+
+    // Tabs
+    const tabDef = [['stages', 'Công đoạn'], ['evidence', 'Minh chứng'], ['comments', 'Bình luận'], ['history', 'Lịch sử']];
+    const tabs = tabDef.map(([id, label]) => ({
+      label, on: s.tab === id, pick: () => this.setState({ tab: id }),
+      style: s.tab === id ? 'color:#141B2D;font-weight:700;border-bottom:3px solid #2748D8' : 'color:#3F4A5E;font-weight:500;border-bottom:3px solid transparent'
+    }));
+
+    // Giai đoạn
+    const stages = s.subs.map((g) => {
+      const i = this.info(g.due);
+      const locked = g.status !== 'Chưa thực hiện';
+      const isSel = s.sel === g.id;
+      return {
+        no: g.no, name: g.name, hours: g.h, dueText: this.fmt(g.due), dlLabel: i.label, dlStyle: dl[i.kind],
+        status: g.status, stStyle: st[g.status],
+        assigneeLabel: g.assignee ? 'Người nhận: ' + nameOf(g.assignee) : 'Chưa giao',
+        asnStyle: g.assignee ? 'background:#E8EDFD;color:#1B2F94' : 'background:#FFF1CC;color:#7A4B00',
+        border: isSel && leader && !locked ? '#2748D8' : '#E3E8F0', bg: isSel && leader && !locked ? '#F5F7FF' : '#FFFFFF',
+        canAssign: leader && !locked, isSel,
+        assignLabel: isSel ? 'Đang chọn' : (g.assignee ? 'Đổi người' : 'Giao việc'),
+        assignStyle: isSel ? on : off,
+        assign: () => this.setState({ sel: g.id, cand: '', err: '', warn: '' }),
+        isLocked: leader && locked,
+        canStart: !leader && g.assignee === 'kl' && g.status === 'Chưa thực hiện',
+        start: () => this.setState({
+          subs: s.subs.map((x) => (x.id === g.id ? { ...x, status: 'Đang thực hiện' } : x)), started: true,
+          hist: this.addHist('TASK_STATUS_CHANGE', 'GĐ' + g.no + ': Chưa thực hiện → Đang thực hiện', 'SUCCESS'),
+          toast: 'Đã bắt đầu GĐ' + g.no + '. Task cha chuyển sang Đang thực hiện, thông tin gốc và cấu trúc bị khóa.'
+        })
+      };
+    });
+
+    // Bảng mức tải
+    const rows = mem.map((m) => {
+      const P = s.planned[m.id];
+      const known = m.free !== null && P !== null;
+      const add = T && T.assignee === m.id ? 0 : H;
+      const before = known ? P / m.free : null;
+      const after = known ? (P + add) / m.free : null;
+      let flag = 'Thiếu dữ liệu', flagStyle = 'background:#EBEEF4;color:#3F4A5E', bar = 'background:#8A94A8';
+      if (known) {
+        if (after > 1) { flag = 'Quá tải'; flagStyle = 'background:#FDE5E3;color:#A3231B'; bar = 'background:#A3231B'; }
+        else if (after >= 0.70) { flag = 'Gần quá tải'; flagStyle = 'background:#FFF1CC;color:#7A4B00'; bar = 'background:#B7791F'; }
+        else { flag = 'Còn giờ'; flagStyle = 'background:#E3F5EA;color:#13693A'; bar = 'background:#2748D8'; }
+      }
+      const picked = s.cand === m.id;
+      return {
+        name: m.name, init: m.init, flag, flagStyle, barStyle: bar,
+        afterW: known ? Math.min(100, Math.round(after * 100)) : 0,
+        hoursText: known ? P + ' giờ đã phân / ' + m.free + ' giờ rảnh' : 'Chưa khai báo giờ rảnh',
+        loadText: known ? 'Tải ' + Math.round(before * 100) + '% → ' + Math.round(after * 100) + '%' : 'Không tính được',
+        on: picked, border: picked ? '#2748D8' : '#E3E8F0', bg: picked ? '#F5F7FF' : '#FFFFFF',
+        pick: () => this.setState({ cand: m.id, err: '', warn: known ? '' : 'Thành viên này chưa khai báo giờ rảnh nên hệ thống chưa kiểm tra được mức tải.' })
+      };
+    });
+
+    // Gợi ý
+    const ranked = mem.filter((m) => m.free !== null).map((m) => {
+      const P = s.planned[m.id];
+      const add = T && T.assignee === m.id ? 0 : H;
+      const after = (P + add) / m.free;
+      const left = m.free - P - add;
+      const score = Math.round(100 * (1 - Math.min(after, 1.3) / 1.3));
+      return { m, score, after, left };
+    }).sort((a, b) => b.score - a.score).slice(0, 3).map((r, i) => ({
+      rank: i + 1, name: r.m.name, score: r.score,
+      reason: (r.left >= 0 ? 'Còn ' + r.left + ' giờ sau khi giao' : 'Thiếu ' + Math.abs(r.left) + ' giờ so với quỹ rảnh') + ' · tải ' + Math.round(r.after * 100) + '%' + (r.after >= 0.70 ? ' (gần ngưỡng)' : ''),
+      pick: () => this.setState({ cand: r.m.id, err: '', warn: '' })
+    }));
+
+    // Mô phỏng
+    const cm = mem.find((m) => m.id === s.cand);
+    let sim = {};
+    if (cm && cm.free !== null && T) {
+      const P = s.planned[cm.id];
+      const add = T.assignee === cm.id ? 0 : H;
+      const a = (P + add) / cm.free;
+      sim = {
+        hasSim: true, simName: cm.name,
+        simBefore: Math.round((P / cm.free) * 100) + '%', simBeforeHours: P + ' / ' + cm.free + ' giờ · còn ' + (cm.free - P) + ' giờ',
+        simAfter: Math.round(a * 100) + '%', simAfterHours: (P + add) + ' / ' + cm.free + ' giờ · ' + (cm.free - P - add >= 0 ? 'còn ' + (cm.free - P - add) + ' giờ' : 'thiếu ' + (P + add - cm.free) + ' giờ'),
+        simBorder: a > 1 ? '#A3231B' : a >= 0.70 ? '#B7791F' : '#2748D8', simBg: a > 1 ? '#FDE5E3' : a >= 0.70 ? '#FFF1CC' : '#F5F7FF', simColor: a > 1 ? '#A3231B' : a >= 0.70 ? '#7A4B00' : '#141B2D'
+      };
+    } else {
+      sim = { hasSim: false, simName: '', simBefore: '', simBeforeHours: '', simAfter: '', simAfterHours: '', simBorder: '#E3E8F0', simBg: '#fff', simColor: '#141B2D' };
+    }
+
+    const confirm = () => {
+      if (!T) { this.setState({ err: 'Giai đoạn đã bắt đầu hoặc hoàn thành nên không thể đổi người nhận.' }); return; }
+      if (!cm) { this.setState({ err: 'Chọn người nhận trước khi xác nhận.' }); return; }
+      const P = s.planned[cm.id];
+      if (cm.free !== null && T.assignee !== cm.id && (P + H) / cm.free > 1) {
+        this.setState({
+          err: 'Không thể giao: ' + cm.name + ' sẽ vượt quỹ giờ (' + Math.round(((P + H) / cm.free) * 100) + '%). Chọn người còn giờ rảnh. Lần thử này được ghi vào nhật ký TASK_ASSIGN/FAILED.',
+          hist: this.addHist('TASK_ASSIGN', 'Giao GĐ' + T.no + ' cho ' + cm.name, 'FAILED · OVER_CAPACITY')
+        });
+        return;
+      }
+      const planned = { ...s.planned };
+      if (T.assignee && planned[T.assignee] !== null) planned[T.assignee] = planned[T.assignee] - T.h;
+      if (planned[cm.id] !== null) planned[cm.id] = planned[cm.id] + T.h;
+      this.setState({
+        planned, cand: '', err: '', warn: '',
+        subs: s.subs.map((x) => (x.id === T.id ? { ...x, assignee: cm.id } : x)),
+        hist: this.addHist('TASK_ASSIGN', 'Giao GĐ' + T.no + ' cho ' + cm.name, 'SUCCESS'),
+        toast: 'Đã giao GĐ' + T.no + ' cho ' + cm.name + '. Task vẫn Chưa thực hiện, thông báo đã gửi tới chuông của người nhận.'
+      });
+    };
+
+    // Minh chứng
+    const evCanUpload = !leader && s.started;
+    const histRows = s.hist.map((h) => ({ ...h, style: h.result.indexOf('FAILED') === 0 ? 'background:#FDE5E3;color:#A3231B' : 'background:#E3F5EA;color:#13693A' }));
+
+    return {
+      isLeader: leader, isAssignee: !leader,
+      leaderStyle: leader ? segOn : segOff, assigneeStyle: !leader ? segOn : segOff,
+      asLeader: () => this.setState({ viewer: 'leader' }), asAssignee: () => this.setState({ viewer: 'assignee', tab: 'stages' }),
+      started: s.started, statusLabel: s.started ? 'Đang thực hiện' : 'Chưa thực hiện', statusStyle: s.started ? st['Đang thực hiện'] : st['Chưa thực hiện'],
+      editOpacity: s.started ? '0.45' : '1',
+      doEdit: () => this.setState({ toast: 'Task còn Chưa thực hiện nên được phép sửa. Biểu mẫu sửa giống màn Công việc.' }),
+      doDelete: () => this.setState({ toast: 'Xóa mềm cần xác nhận và chỉ áp dụng khi mọi task con còn Chưa thực hiện.' }),
+      steps, tabs,
+      tabStages: s.tab === 'stages', tabEvidence: s.tab === 'evidence', tabComments: s.tab === 'comments', tabHistory: s.tab === 'history',
+      stages,
+      hasTarget: !!T, noTarget: !T,
+      targetName: T ? 'GĐ' + T.no + ' · ' + T.name : '', targetHours: H, targetDue: T ? this.fmt(T.due) : '',
+      members: rows, cands: ranked, ...sim,
+      hasErr: !!s.err, err: s.err, hasWarn: !!s.warn, warn: s.warn, confirm,
+
+      evLocked: !s.started, evCanUpload, evLeaderView: s.started && leader,
+      evid: s.evid, evNote: s.evNote, evErr: s.evErr,
+      evFileLabel: s.evFile ? 'Đã chọn: ' + s.evFile.name + ' (' + (s.evFile.size / 1048576).toFixed(2) + ' MB)' : 'Chưa chọn tệp.',
+      iEvNote: (e) => this.setState({ evNote: e.target.value }),
+      onFile: (e) => {
+        const f = e.target.files && e.target.files[0];
+        if (!f) { this.setState({ evFile: null }); return; }
+        const ext = f.name.split('.').pop().toLowerCase();
+        if (['pdf', 'docx', 'png', 'jpg', 'zip'].indexOf(ext) < 0) { this.setState({ evFile: null, evErr: 'Chỉ nhận pdf, docx, png, jpg hoặc zip.' }); return; }
+        if (f.size > 20 * 1048576) { this.setState({ evFile: null, evErr: 'Tệp vượt quá 20 MB.' }); return; }
+        this.setState({ evFile: { name: f.name, size: f.size }, evErr: '' });
+      },
+      submitEv: () => {
+        if (!s.evFile && !s.evNote.trim()) { this.setState({ evErr: 'Cần ít nhất một tệp hoặc báo cáo ngắn.' }); return; }
+        const rec = { name: s.evFile ? s.evFile.name : 'Báo cáo bằng văn bản', meta: 'Nộp 26/10 16:3' + (s.evid.length % 10) + ' · Khánh Linh · Đã nộp', note: s.evNote.trim() || 'Không có ghi chú.' };
+        this.setState({ evid: [rec].concat(s.evid), evFile: null, evNote: '', evErr: '', hist: this.addHist('TASK_EVIDENCE_UPLOAD', rec.name, 'SUCCESS'), toast: 'Đã nộp minh chứng. Bản ghi được giữ nguyên, không ghi đè.' });
+      },
+
+      comments: s.comments, draft: s.draft, draftLen: s.draft.length,
+      cmErr: s.cmErr, cmBorder: s.cmErr ? 'var(--bad)' : 'var(--line-strong)',
+      iDraft: (e) => this.setState({ draft: e.target.value, cmErr: '' }),
+      sendComment: () => {
+        const t = s.draft.trim();
+        if (!t) { this.setState({ cmErr: 'Nhập nội dung bình luận.' }); return; }
+        if (t.length > 500) { this.setState({ cmErr: 'Bình luận tối đa 500 ký tự.' }); return; }
+        this.setState({ comments: s.comments.concat([{ name: leader ? 'Nguyễn Minh Anh' : 'Võ Khánh Linh', init: leader ? 'MA' : 'KL', when: '26/10 16:3' + (s.comments.length % 10), text: t }]), draft: '', cmErr: '' });
+      },
+      hist: histRows,
+      hasToast: !!s.toast, toast: s.toast, closeToast: () => this.setState({ toast: '' })
+    };
+  }
+}
+</script>
+</body>
+</html>
