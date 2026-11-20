@@ -3,6 +3,33 @@
   "configurations": [
     {
       "type": "java",
+      "name": "TV1 - Login Server",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "shortenCommandLine": "jarmanifest",
+      "mainClass": "vn.ktd.taskhub.server.ServerMain",
+      "args": "--login"
+    },
+    {
+      "type": "java",
+      "name": "TV1 - Login Client",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "shortenCommandLine": "jarmanifest",
+      "mainClass": "vn.ktd.taskhub.client.ClientMain",
+      "args": "--login"
+    },
+    {
+      "type": "java",
+      "name": "TV1 - Kiem tra MySQL",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "shortenCommandLine": "jarmanifest",
+      "mainClass": "vn.ktd.taskhub.server.database.DatabaseCheck"
+    },
+    {
+      "type": "java",
       "name": "ServerMain",
       "request": "launch",
       "cwd": "${workspaceFolder}",
@@ -19,3 +46,4 @@
     }
   ]
 }
+

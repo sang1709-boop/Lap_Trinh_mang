@@ -8,9 +8,21 @@
   <artifactId>server</artifactId>
   <dependencies>
     <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <version>8.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>vn.ktd.taskhub</groupId>
       <artifactId>shared</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>
+

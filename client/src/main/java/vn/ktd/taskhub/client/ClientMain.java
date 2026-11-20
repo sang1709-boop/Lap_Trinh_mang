@@ -13,7 +13,17 @@ public class ClientMain {
             if (in == null) throw new FileNotFoundException("client.properties");
             config.load(in);
         }
-        String host = args.length > 0 ? args[0] : config.getProperty("server.host");
+        boolean login = args.length == 1 && "--login".equals(args[0]);
+        JsonObject data = new JsonObject();
+        if (login) {
+            if (System.console() == null) throw new IOException("Run in an integrated terminal");
+            data.addProperty("studentId", System.console().readLine("MSSV: "));
+            char[] secret = System.console().readPassword("Mat khau sinh vien: ");
+            if (secret == null) return;
+            data.addProperty("password", new String(secret));
+            Arrays.fill(secret, (char) 0);
+        }
+        String host = args.length > 0 && !login ? args[0] : config.getProperty("server.host");
         int port = Integer.parseInt(args.length > 1 ? args[1] : config.getProperty("server.port"));
         try (var socket = new Socket()) {
             socket.connect(new InetSocketAddress(host, port), 5000);
@@ -22,16 +32,22 @@ public class ClientMain {
             var request = new JsonObject();
             request.addProperty("type", "request");
             request.addProperty("requestId", id);
-            request.addProperty("action", "PING");
-            request.add("data", new JsonObject());
+            request.addProperty("action", login ? "LOGIN" : "PING");
+            request.add("data", data);
             MessageCodec.write(new DataOutputStream(socket.getOutputStream()), request);
             var response = MessageCodec.read(new DataInputStream(socket.getInputStream()));
             if (!"response".equals(response.get("type").getAsString())
                     || !id.equals(response.get("requestId").getAsString())
-                    || !response.get("ok").getAsBoolean()
-                    || !"PONG".equals(response.getAsJsonObject("data").get("message").getAsString()))
+                    || (!login && (!response.get("ok").getAsBoolean()
+                    || !"PONG".equals(response.getAsJsonObject("data").get("message").getAsString()))))
                 throw new IOException("Phản hồi PING không hợp lệ");
-            System.out.println(response);
+            if (!login) System.out.println(response);
+            else if (response.get("ok").getAsBoolean()) {
+                System.out.println("Dang nhap thanh cong: " + response.getAsJsonObject("data").get("fullName").getAsString());
+                System.console().readLine("Nhan Enter de dong ket noi.");
+            } else System.out.println("LOGIN_FAILED".equals(response.get("error").getAsString())
+                    ? "Khong the dang nhap voi thong tin da cung cap." : response.get("error").getAsString());
         }
     }
 }
+
