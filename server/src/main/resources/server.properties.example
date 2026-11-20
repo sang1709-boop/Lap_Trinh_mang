@@ -1,1 +1,3 @@
 server.port=5050
+db.url=jdbc:mysql://localhost:3306/ktd_task_hub?connectTimeout=5000&socketTimeout=10000
+db.user=root
