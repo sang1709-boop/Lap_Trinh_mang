@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "ServerMain",
+      "request": "launch",
+      "mainClass": "vn.ktd.taskhub.server.ServerMain"
+    },
+    {
+      "type": "java",
+      "name": "ClientMain",
+      "request": "launch",
+      "mainClass": "vn.ktd.taskhub.client.ClientMain"
+    }
+  ]
+}
