@@ -5,12 +5,16 @@
       "type": "java",
       "name": "ServerMain",
       "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "shortenCommandLine": "jarmanifest",
       "mainClass": "vn.ktd.taskhub.server.ServerMain"
     },
     {
       "type": "java",
       "name": "ClientMain",
       "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "shortenCommandLine": "jarmanifest",
       "mainClass": "vn.ktd.taskhub.client.ClientMain"
     }
   ]

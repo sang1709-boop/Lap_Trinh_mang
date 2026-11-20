@@ -18,12 +18,12 @@
 Dùng JDK 17 trở lên và Maven 3.6.3 trở lên. Chạy tại thư mục chứa POM gốc trên Windows.
 
 ```powershell
-mvn package
-java -cp "server/target/classes;shared/target/classes" vn.ktd.taskhub.server.ServerMain
-java -cp "client/target/classes;shared/target/classes" vn.ktd.taskhub.client.ClientMain
+mvn package dependency:copy-dependencies
+java -cp "server/target/classes;shared/target/classes;shared/target/dependency/*" vn.ktd.taskhub.server.ServerMain
+java -cp "client/target/classes;shared/target/classes;shared/target/dependency/*" vn.ktd.taskhub.client.ClientMain
 ```
 
-Trong VS Code có Extension Pack for Java, mở thư mục gốc rồi chọn **ServerMain** hoặc **ClientMain** trong **Run and Debug**. Mỗi chương trình in thông báo khởi chạy rồi kết thúc. Bước này chạy độc lập với TCP và MySQL.
+Trong VS Code có Extension Pack for Java, mở thư mục gốc rồi chọn **ServerMain** hoặc **ClientMain** trong **Run and Debug**. Giữ ServerMain chạy và mở hai ClientMain. Mỗi client gửi PING rồi in phản hồi PONG có requestId riêng. Bước này chưa cần MySQL. Server đọc server.properties.example hoặc nhận đường dẫn cấu hình ở đối số đầu. Client mặc định dùng client.properties và nhận hai đối số tùy chọn host port.
 
 ## Thêm nghiệp vụ
 
