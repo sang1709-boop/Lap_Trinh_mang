@@ -3,3 +3,4 @@ target/
 .env
 server.properties
 uploads/
+/debug.log
