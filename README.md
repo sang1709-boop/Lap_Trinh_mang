@@ -23,6 +23,10 @@ java -cp "server/target/classes;shared/target/classes;shared/target/dependency/*
 java -cp "client/target/classes;shared/target/classes;shared/target/dependency/*" vn.ktd.taskhub.client.ClientMain
 ```
 
+Khởi tạo dữ liệu demo PH2 bằng cách chạy `database/ktd_task_hub.sql`, sau đó `database/seed_demo.sql` trong MySQL Workbench. Ba tài khoản mẫu là `20KTD001`, `20KTD002`, `20KTD003`, cùng mật khẩu `password`; mã nhóm mẫu là `KTD2026DEMO1`.
+
+Để mở giao diện Swing quản lý nhóm, chạy server với cấu hình **TV1 - Login Server**, sau đó chạy **TV2 - Quan ly nhom** trong VS Code. Client giữ nguyên kết nối sau đăng nhập và gửi các lệnh PH2 bằng `requestId`.
+
 Trong VS Code có Extension Pack for Java, mở thư mục gốc rồi chọn **ServerMain** hoặc **ClientMain** trong **Run and Debug**. Giữ ServerMain chạy và mở hai ClientMain. Mỗi client gửi PING rồi in phản hồi PONG có requestId riêng. Bước này chưa cần MySQL. Server đọc server.properties.example hoặc nhận đường dẫn cấu hình ở đối số đầu. Client mặc định dùng client.properties và nhận hai đối số tùy chọn host port.
 
 ## Thêm nghiệp vụ

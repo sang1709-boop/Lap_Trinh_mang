@@ -18,3 +18,23 @@ Mẫu thảo luận cho TV3 và TV4 (chưa có handler):
 {"type":"event","action":"TASK_ASSIGNED","data":{"taskId":7}}
 ```
 Khi tích hợp đăng nhập và sự kiện, client cần giữ kết nối, đọc ở luồng nền, chuyển event riêng và ghép response theo requestId. Nhóm cần thống nhất cách truyền tệp với TV3.
+
+## PH2 · Quản lý nhóm
+
+Mọi lệnh PH2 yêu cầu đã đăng nhập trên cùng kết nối. Phản hồi lỗi dùng các mã ổn định như `AUTH_REQUIRED`, `FORBIDDEN`, `NOT_MEMBER`, `GROUP_DISBANDED`, `INVALID_JOIN_CODE`, `BLOCKED`, `OPEN_TASKS_EXIST`, `CONFLICT` và `DEPENDENCY_UNAVAILABLE`.
+
+Các lệnh truy vấn: `GROUP_LIST`, `GROUP_DETAIL`, `GROUP_MEMBER_LIST`, `GROUP_INVITATION_LIST`, `GROUP_JOIN_REQUEST_LIST`, `GROUP_BLOCK_LIST`, `GROUP_HANDOVER_LIST`.
+
+Các lệnh thay đổi: `GROUP_CREATE`, `GROUP_UPDATE`, `GROUP_INVITE_CODE_ROTATE`, `GROUP_INVITE_CODE_REVOKE`, `GROUP_DISBAND`, `GROUP_JOIN`, `GROUP_INVITE_CREATE`, `GROUP_INVITE_REVOKE`, `GROUP_INVITE_RESPOND`, `GROUP_JOIN_REQUEST_DECIDE`, `GROUP_MEMBER_REMOVE`, `GROUP_ROLE_TRANSFER`, `GROUP_LEAVE`, `GROUP_MEMBER_UNBLOCK`, `GROUP_HANDOVER_REQUEST`, `GROUP_HANDOVER_DECIDE`.
+
+Ví dụ tạo và tham gia nhóm:
+
+```json
+{"type":"request","requestId":"g1","action":"GROUP_CREATE","data":{"name":"Nhóm KTD","description":"Đồ án mạng","approvalEnabled":true}}
+```
+
+```json
+{"type":"request","requestId":"g2","action":"GROUP_JOIN","data":{"inviteCode":"KTD2026DEMO1"}}
+```
+
+`GROUP_HANDOVER_DECIDE` với quyết định `approve` trả `DEPENDENCY_UNAVAILABLE` cho đến khi TV3 cung cấp `TaskHandoverPort`. Yêu cầu bàn giao vẫn được giữ ở trạng thái `pending`.

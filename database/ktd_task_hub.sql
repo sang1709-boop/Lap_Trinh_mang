@@ -398,6 +398,7 @@ BEGIN
     `code_revoked_at` datetime(3) DEFAULT NULL,
     PRIMARY KEY (`group_id`),
     UNIQUE KEY `invite_code` (`invite_code`),
+    UNIQUE KEY `uq_group_creator_name` (`created_by`,`name`),
     KEY `fk_groups_creator` (`created_by`),
     CONSTRAINT `chk_group_name` CHECK ((char_length(trim(`name`)) between 3 and 50)),
     CONSTRAINT `student_groups_chk_1` CHECK (((`invite_code` is null) or regexp_like(`invite_code`,_utf8mb4'^[A-Za-z0-9]{12}$',_utf8mb4'c')))

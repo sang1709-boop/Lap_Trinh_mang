@@ -5,6 +5,9 @@ import java.net.*;
 import java.util.*;
 import com.google.gson.JsonObject;
 import vn.ktd.taskhub.shared.protocol.MessageCodec;
+import vn.ktd.taskhub.client.network.GroupApiClient;
+import vn.ktd.taskhub.client.feature.group.view.GroupsFrame;
+import javax.swing.SwingUtilities;
 
 public class ClientMain {
     public static void main(String[] args) throws IOException {
@@ -13,7 +16,28 @@ public class ClientMain {
             if (in == null) throw new FileNotFoundException("client.properties");
             config.load(in);
         }
+        boolean groups = args.length == 1 && "--groups".equals(args[0]);
         boolean login = args.length == 1 && "--login".equals(args[0]);
+        if (groups) {
+            if (System.console() == null) throw new IOException("Run in an integrated terminal");
+            String studentId = System.console().readLine("MSSV: ");
+            char[] secret = System.console().readPassword("Mat khau sinh vien: ");
+            if (secret == null) return;
+            String password = new String(secret);
+            Arrays.fill(secret, (char) 0);
+            String host = config.getProperty("server.host");
+            int port = Integer.parseInt(config.getProperty("server.port"));
+            GroupApiClient api = new GroupApiClient(host, port);
+            try {
+                JsonObject profile = api.login(studentId, password);
+                String fullName = profile.get("fullName").getAsString();
+                SwingUtilities.invokeLater(() -> new GroupsFrame(api, fullName).setVisible(true));
+            } catch (IOException error) {
+                api.close();
+                throw error;
+            }
+            return;
+        }
         JsonObject data = new JsonObject();
         if (login) {
             if (System.console() == null) throw new IOException("Run in an integrated terminal");

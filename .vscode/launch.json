@@ -3,6 +3,15 @@
   "configurations": [
     {
       "type": "java",
+      "name": "TV2 - Quan ly nhom",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "shortenCommandLine": "jarmanifest",
+      "mainClass": "vn.ktd.taskhub.client.ClientMain",
+      "args": "--groups"
+    },
+    {
+      "type": "java",
       "name": "TV1 - Login Server",
       "request": "launch",
       "console": "integratedTerminal",
