@@ -31,20 +31,28 @@ public class ServerMain {
             System.out.println("KTD TCP " + server.getLocalPort());
             while (true) {
                 Socket socket = server.accept();
-                try { workers.execute(() -> serve(socket, new RequestRouter(config, dbPassword))); }
+                try { workers.execute(() -> serve(socket, new RequestRouter(config, dbPassword, socket.getInetAddress().getHostAddress()))); }
                 catch (RejectedExecutionException busy) { socket.close(); }
             }
         } finally { workers.shutdownNow(); }
     }
 
     private static void serve(Socket socket, RequestRouter router) {
+        String reason = "DISCONNECT";
         try (socket; var in = new DataInputStream(socket.getInputStream());
                 var out = new DataOutputStream(socket.getOutputStream())) {
-            socket.setSoTimeout(120000);
-            while (true) MessageCodec.write(out, router.route(MessageCodec.read(in)));
+            socket.setSoTimeout(90000);
+            while (!router.finished()) MessageCodec.write(out, router.route(MessageCodec.read(in)));
+        } catch (SocketTimeoutException timeout) {
+            reason = "SESSION_TIMEOUT";
         } catch (EOFException closed) {
             // Client đã ngắt kết nối.
-        } catch (IOException ex) { System.err.println(ex.getMessage()); }
+        } catch (IOException | java.sql.SQLException ex) { System.err.println(ex.getMessage()); }
+        finally {
+            try { router.close(reason); }
+            catch (java.sql.SQLException ex) { System.err.println("Session cleanup: " + ex.getMessage()); }
+        }
     }
 }
+
 

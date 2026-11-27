@@ -28,3 +28,6 @@ Trong VS Code có Extension Pack for Java, mở thư mục gốc rồi chọn **
 ## Thêm nghiệp vụ
 
 Ví dụ với chức năng giao việc, đặt giao diện trong `client/.../feature/task/{view,controller,model}`, xử lý và lưu trữ trong `server/.../feature/task/{handler,service,dao}`, và DTO trong `shared/.../dto/task`. Tạo các package này khi thêm lớp đầu tiên.
+## Chạy phần TV1
+
+Chạy **TV1 - Login Server** và **TV1 - Tai khoan va nhat ky** trong VS Code. Xem [hướng dẫn SMTP, dữ liệu thử và một lượt nghiệm thu TV1](docs/tv1-chay-thu.md).

@@ -2,8 +2,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type":"java",
+      "name":"TV1 - Tai khoan va nhat ky",
+      "request":"launch",
+      "shortenCommandLine":"jarmanifest",
+      "mainClass":"vn.ktd.taskhub.client.AccountDesktop"
+    },
+    {
       "type": "java",
       "name": "TV1 - Login Server",
+      "envFile": "${workspaceFolder}/.env",
       "request": "launch",
       "console": "integratedTerminal",
       "shortenCommandLine": "jarmanifest",
@@ -46,4 +54,6 @@
     }
   ]
 }
+
+
 
