@@ -19,6 +19,8 @@ public final class RequestRouter {
     private final vn.ktd.taskhub.server.security.SocketSession session;
     private boolean finished;
     public boolean finished() { return finished; }
+    public String socketId() { return session.socketId(); }
+    public long userId() { return session.authenticatedUser(); }
     public void close(String reason) throws SQLException { session.close(reason); }
     public RequestRouter(Properties config, String dbPassword, String ip) {
         session = new vn.ktd.taskhub.server.security.SocketSession(config, dbPassword, ip);
@@ -92,6 +94,14 @@ public final class RequestRouter {
             } catch (IllegalArgumentException invalid) { error = invalid.getMessage(); }
               catch (SQLIntegrityConstraintViolationException duplicate) { error = "CONFLICT"; }
               catch (SQLException unavailable) { error = "SERVER_ERROR"; }
+        }
+        else if (vn.ktd.taskhub.server.feature.TeamActions.ACTIONS.contains(action)) {
+            if (!session.active()) error = "UNAUTHENTICATED";
+            else try (var db = DriverManager.getConnection(config.getProperty("db.url"),config.getProperty("db.user"),dbPassword)) {
+                var input = new vn.ktd.taskhub.server.feature.TeamRequest(db,session,request.getAsJsonObject("data"));
+                response.add("data",vn.ktd.taskhub.server.feature.TeamActions.run(input,action));
+            } catch (IllegalArgumentException invalid) { error=invalid.getMessage(); }
+              catch (SQLException ex) { System.err.println(action+" SQLState="+ex.getSQLState()); error="SERVER_ERROR"; }
         }
         else if (!handlers.containsKey(action)) error = "UNKNOWN_ACTION";
         else response.add("data", handlers.get(action).apply(request.getAsJsonObject("data")));

@@ -11,10 +11,14 @@ public final class AuditTrail {
     private AuditTrail() {}
     public static void append(Connection db, SocketSession session, Long actor, Long group, String action,
             String type,String target,JsonObject old,JsonObject next,String failure) throws SQLException {
+        append(db,session,actor,group,action,type,target,old,next,failure,null);
+    }
+    public static void append(Connection db, SocketSession session, Long actor, Long group, String action,
+            String type,String target,JsonObject old,JsonObject next,String failure,String eventKey) throws SQLException {
         Sql.update(db,"""
-            INSERT INTO audit_logs(user_id,group_id,action,target_type,target_id,old_value,new_value,ip_address,socket_id,result,reason)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            INSERT INTO audit_logs(user_id,group_id,action,target_type,target_id,old_value,new_value,ip_address,socket_id,result,reason,event_key)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
             """,actor,group,action,type,target,old==null?null:old.toString(),next==null?null:next.toString(),
-            session.ip(),session.socketId(),failure==null?"success":"failed",failure);
+            session.ip(),session.socketId(),failure==null?"success":"failed",failure,eventKey);
     }
 }

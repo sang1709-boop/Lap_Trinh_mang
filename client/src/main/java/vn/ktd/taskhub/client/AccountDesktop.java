@@ -46,6 +46,10 @@ public final class AccountDesktop {
     private final ScheduledExecutorService worker=Executors.newSingleThreadScheduledExecutor();
     private final Properties settings=new Properties();
     private Socket socket;
+    private vn.ktd.taskhub.client.network.SessionChannel channel;
+    private vn.ktd.taskhub.client.feature.TeamWindow team;
+    private final JButton teamButton=new JButton("Công việc nhóm");
+    private JsonArray groups=new JsonArray();
     private boolean authenticated;
 
     public static void main(String[] args){SwingUtilities.invokeLater(()->new AccountDesktop().show());}
@@ -57,12 +61,16 @@ public final class AccountDesktop {
         body.setBorder(BorderFactory.createEmptyBorder(14,14,14,14));
         var top=new JPanel(new BorderLayout(8,8));top.add(menu,BorderLayout.NORTH);top.add(fields);top.add(submit,BorderLayout.SOUTH);
         result.setEditable(false);result.setLineWrap(true);result.setWrapStyleWord(true);
-        body.add(top,BorderLayout.NORTH);body.add(new JScrollPane(result));frame.setContentPane(body);
+        body.add(top,BorderLayout.NORTH);body.add(new JScrollPane(result));body.add(teamButton,BorderLayout.SOUTH);
+        teamButton.setVisible(false);teamButton.addActionListener(e->{
+            if(team==null || !team.isDisplayable()) team=new vn.ktd.taskhub.client.feature.TeamWindow(frame,groups,this::teamCall,this::badge);
+            team.setVisible(true);team.toFront();
+        });frame.setContentPane(body);
         menu.addActionListener(e->form());submit.addActionListener(e->send());form();
         frame.addWindowListener(new WindowAdapter(){public void windowClosed(WindowEvent e){worker.execute(()->disconnect());worker.shutdown();}});
         worker.scheduleWithFixedDelay(()->{
             if(authenticated)try{
-                var reply=ClientMain.exchange(socket,"HEARTBEAT",new JsonObject());
+                var reply=channel.exchange("HEARTBEAT",new JsonObject());
                 if(!reply.get("ok").getAsBoolean())throw new IOException();
             }catch(IOException ex){disconnect();render(false,"Phiên đã kết thúc. Vui lòng đăng nhập lại.");}
         },30,30,TimeUnit.SECONDS);
@@ -76,8 +84,38 @@ public final class AccountDesktop {
         }
         fields.revalidate();frame.pack();
     }
-    private void disconnect(){authenticated=false;if(socket!=null)try{socket.close();}catch(IOException ignored){}socket=null;}
+    private void disconnect(){authenticated=false;if(socket!=null)try{socket.close();}catch(IOException ignored){}socket=null;channel=null;}
+    private void badge(int count){teamButton.setText("Công việc nhóm · Thông báo ("+count+")");}
+    private void inboxChanged(){
+        SwingUtilities.invokeLater(()->{
+            if(!frame.isDisplayable() || !teamButton.isVisible())return;
+            if(team!=null && team.isShowing())team.refreshInbox();
+            else teamCall("NOTIFICATION_COUNT",new JsonObject(),r->badge(r.get("unreadCount").getAsInt()));
+        });
+    }
+    private void teamCall(String action,JsonObject data,java.util.function.Consumer<JsonObject> success){
+        if(worker.isShutdown())return;
+        worker.execute(()->{
+            if(!authenticated)return;
+            try{
+                var reply=channel.exchange(action,data);
+                if(reply.get("ok").getAsBoolean())SwingUtilities.invokeLater(()->success.accept(reply.getAsJsonObject("data")));
+                else if("SESSION_EXPIRED".equals(reply.get("error").getAsString())){disconnect();render(false,"Phiên đã kết thúc.");}
+                else SwingUtilities.invokeLater(()->JOptionPane.showMessageDialog(team,switch(reply.get("error").getAsString()){
+                    case "FORBIDDEN" -> "Bạn không có quyền thực hiện thao tác này trong nhóm.";
+                    case "BAD_REQUEST" -> "Kiểm tra các trường đã nhập, ngày yyyy-MM-dd và số giờ lớn hơn 0.";
+                    case "INVALID_ASSIGNEE" -> "Người nhận phải là thành viên đang hoạt động trong nhóm.";
+                    case "TASK_CHANGED" -> "Công việc đã thay đổi. Tải lại mức tải và mô phỏng lại.";
+                    case "HISTORY_INCOMPLETE" -> "Thiếu lịch sử công việc để chốt số liệu cho kỳ này.";
+                    case "NOTIFICATION_NOT_FOUND" -> "Không tìm thấy thông báo trong hộp của bạn.";
+                    default -> reply.get("error").getAsString();
+                }));
+            }catch(IOException ex){disconnect();render(false,"Mất kết nối. Vui lòng đăng nhập lại.");}
+        });
+    }
     private void render(boolean logged,String message){SwingUtilities.invokeLater(()->{
+        teamButton.setVisible(logged);
+        if(!logged && team!=null){team.dispose();team=null;}
         if(menu.getItemAt(0)!=(logged?PRIVATE:PUBLIC)[0])menu.setModel(new DefaultComboBoxModel<>(logged?PRIVATE:PUBLIC));
         form();result.setText(message);submit.setEnabled(true);menu.setEnabled(true);
     });}
@@ -111,14 +149,21 @@ public final class AccountDesktop {
             try{
                 if(socket==null){
                     socket=new Socket();socket.connect(new InetSocketAddress(settings.getProperty("server.host"),Integer.parseInt(settings.getProperty("server.port"))),5000);
-                    socket.setSoTimeout(15000);
+                    channel=new vn.ktd.taskhub.client.network.SessionChannel(socket,this::inboxChanged);
                 }
-                var reply=ClientMain.exchange(socket,f.action,data);
+                var reply=channel.exchange(f.action,data);
                 boolean ok=reply.get("ok").getAsBoolean();
                 String message;
                 if(ok){
                     var payload=reply.getAsJsonObject("data");
-                    if(f.action.equals("LOGIN")){authenticated=true;payload.remove("sessionToken");}
+                    if(f.action.equals("LOGIN")){
+                        authenticated=true;payload.remove("sessionToken");
+                        var subscription=channel.exchange("NOTIFICATION_SUBSCRIBE",new JsonObject());
+                        if(!subscription.get("ok").getAsBoolean())throw new IOException("Không đăng ký được chuông thông báo.");
+                        var count=channel.exchange("NOTIFICATION_COUNT",new JsonObject());
+                        if(!count.get("ok").getAsBoolean())throw new IOException("Không tải được số chưa đọc.");
+                        SwingUtilities.invokeLater(()->{groups=payload.getAsJsonArray("groups");badge(count.getAsJsonObject("data").get("unreadCount").getAsInt());});
+                    }
                     if(f.action.equals("LOGOUT")||f.action.equals("CHANGE_PASSWORD"))disconnect();
                     if(csvPath!=null){
                         Files.writeString(csvPath,"\uFEFF"+payload.get("csv").getAsString(),StandardOpenOption.CREATE_NEW);

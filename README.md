@@ -31,3 +31,7 @@ Ví dụ với chức năng giao việc, đặt giao diện trong `client/.../fe
 ## Chạy phần TV1
 
 Chạy **TV1 - Login Server** và **TV1 - Tai khoan va nhat ky** trong VS Code. Xem [hướng dẫn SMTP, dữ liệu thử và một lượt nghiệm thu TV1](docs/tv1-chay-thu.md).
+
+## Chạy phần TV4
+
+Nạp migration 015 vào MySQL 8, chạy **TV1 - Login Server**, rồi mở hai **TV4 - Cong viec nhom**. Đăng nhập và chọn **Công việc nhóm** để xem tải, mô phỏng phân công, xem tiến độ hoặc mở hộp thông báo. [Chuẩn bị dữ liệu và kiểm thử hai client](docs/tv4.md).
